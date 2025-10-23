@@ -1,0 +1,58 @@
+/***** Component Primitives *****/
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-primary:active { transform: translateY(0.5px); }
+.btn-primary:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary), white 60%); }
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+}
+.btn-secondary:hover { filter: brightness(1.1); }
+.btn-secondary:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-secondary), white 60%); }
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-white);
+  border-color: var(--color-border);
+}
+.btn-outline:hover { background-color: color-mix(in oklab, var(--color-elevated), black 10%); }
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-elevated);
+  color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.input:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-info), white 60%); }

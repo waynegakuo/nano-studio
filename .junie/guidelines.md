@@ -83,3 +83,25 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 **Overview:**
 Establish a comprehensive design system in `src/styles.scss` to ensure consistent styling across the application and promote code reusability. All reusable styles, design tokens, and utility classes should be centralized here.
+
+### Styling Standards
+- Use SCSS for all styling
+- Component-specific styles in separate `.scss` files
+- Global styles in `src/styles.scss`
+- Follow Prettier configuration:
+  - Print width: 100 characters
+  - Single quotes
+  - Angular parser for HTML files
+
+
+### Typography & Font Guidelines
+
+**Font Specifications:**
+- **Primary UI Font:** Inter - Use for all interface elements, body text, buttons, forms, and general UI components
+- **Brand Title Font:** Ubuntu - Use exclusively for the main application title to provide a distinct, warm, and contemporary feel
+
+**Font Usage Rules:**
+- **Never** use Ubuntu font for anything other than the main title
+- **Always** use DM Sans for UI elements: buttons, forms, navigation, body text, headings (except main title)
+- Use appropriate font weights: DM Sans supports 100-1000, Ubuntu supports 300-700
+- Optimize loading with `font-display: swap` for better performance

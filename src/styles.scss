@@ -1,1 +1,12 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+  Global Design System
+  Centralize design tokens and reusable utilities here. Keep component styles local.
+  Fonts: DM Sans (UI), Ubuntu (brand title only). Loaded via index.html with display=swap.
+*/
+
+@import 'styles/tokens';
+@import 'styles/variables';
+@import 'styles/base';
+@import 'styles/utilities';
+@import 'styles/components';
+@import 'styles/helpers';

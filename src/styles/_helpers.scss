@@ -1,0 +1,14 @@
+/* Helpers */
+.nowrap { white-space: nowrap; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uppercase { text-transform: uppercase; }
+.lowercase { text-transform: lowercase; }
+.capitalize { text-transform: capitalize; }
+
+/*
+Usage examples:
+- Typography: <h1 class="text-3xl fw-bold brand-title">Nano Studio</h1>
+- Button: <button class="btn btn-primary">Save</button>
+- Layout: <div class="flex items-center justify-between gap-4">...</div>
+- Spacing: <div class="p-4 mx-4 my-2">...</div>
+*/

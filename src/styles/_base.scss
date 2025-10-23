@@ -1,0 +1,37 @@
+/* 3) Base and resets */
+* { box-sizing: border-box; }
+html { font-size: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: var(--fw-regular);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--color-white);
+  background-color: var(--color-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, svg, video, canvas { display: block; max-width: 100%; }
+button, input, textarea, select { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-info), white 20%);
+  outline-offset: 2px;
+}
+
+/* Use only for the primary brand title */
+.brand-title {
+  font-family: var(--font-brand);
+  font-weight: var(--fw-bold);
+  line-height: var(--leading-tight);
+}
+
+.container { width: 100%; margin-inline: auto; padding-inline: var(--space-4); }
+@media (min-width: 40rem) { .container { max-width: var(--container-sm); } }
+@media (min-width: 48rem) { .container { max-width: var(--container-md); } }
+@media (min-width: 64rem) { .container { max-width: var(--container-lg); } }
+@media (min-width: 80rem) { .container { max-width: var(--container-xl); } }
