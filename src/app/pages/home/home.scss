@@ -11,6 +11,30 @@
     align-items: center;
     margin-bottom: var(--space-6);
   }
+
+  &__header__description {
+    margin-top: var(--space-2);
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+
+    > b {
+      background: var(--color-gradient-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      font-weight: inherit;
+      font-size: var(--text-md);
+    }
+  }
+  &__header__description__sub {
+    margin: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .grid {
