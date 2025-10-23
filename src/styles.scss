@@ -4,9 +4,9 @@
   Fonts: DM Sans (UI), Ubuntu (brand title only). Loaded via index.html with display=swap.
 */
 
-@import 'styles/tokens';
-@import 'styles/variables';
-@import 'styles/base';
-@import 'styles/utilities';
-@import 'styles/components';
-@import 'styles/helpers';
+@use 'styles/tokens' as *;
+@use 'styles/variables' as *;
+@use 'styles/base' as *;
+@use 'styles/utilities' as *;
+@use 'styles/components' as *;
+@use 'styles/helpers' as *;

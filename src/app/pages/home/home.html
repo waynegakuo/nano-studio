@@ -1,0 +1,102 @@
+<section class="container page">
+  <header class="page__header">
+    <img ngSrc="/assets/logos/nano-studio-logo.svg" width="300" height="50" alt="Nano Studio" priority />
+    <p class="text-md text-muted">Generate product visuals with AI. Upload, describe the vibe, and go.</p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2 class="text-xl fw-semibold">Your product</h2>
+      <div class="upload" role="group" aria-labelledby="upload-label" aria-describedby="upload-help">
+        <label id="upload-label" class="fw-semibold">Upload photo (JPG or PNG)</label>
+        <input
+          #fileInput
+          type="file"
+          class="input"
+          accept="image/png,image/jpeg"
+          (change)="onFileChange(fileInput.files)"
+        />
+        <p id="upload-help" class="text-sm text-muted">Best results with clear, well-lit product images.</p>
+
+        @if (filePreviewUrl()) {
+          <div class="preview">
+            <img [src]="filePreviewUrl()!" alt="Uploaded product preview" />
+          </div>
+        }
+      </div>
+
+      <div class="section">
+        <label for="prompt" class="fw-semibold">Describe the vibe</label>
+        <textarea
+          #promptArea
+          id="prompt"
+          class="input textarea"
+          [value]="prompt()"
+          (input)="onPromptInput(promptArea.value)"
+          placeholder="e.g. Soft natural light, wooden tabletop, cozy morning scene"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="section">
+        <div class="fw-semibold">Quick prompts</div>
+        <div class="chips">
+          @for (p of presets(); track p) {
+            <button
+              type="button"
+              class="chip"
+              [class.chip--active]="selectedPreset() === p"
+              (click)="onSelectPreset(p)"
+            >{{ p }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="actions flex items-center gap-3">
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="!canGenerate()"
+          [attr.aria-busy]="loading()"
+          (click)="generate()"
+        >
+          @if (loading()) { Generating... } @else { Generate image }
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="text-xl fw-semibold">Result</h2>
+      @if (hasResult()) {
+        <div class="result">
+          <img [src]="resultUrl()!" alt="Generated image result" />
+        </div>
+        <div class="section">
+          <a
+            class="btn btn-secondary"
+            [href]="resultUrl()!"
+            download="nano-generated.png"
+          >Download</a>
+        </div>
+      } @else {
+        <p class="text-sm text-muted">Your generated image will appear here.</p>
+      }
+
+      <div class="section">
+        <h3 class="text-lg fw-semibold mb-2">Prompt history</h3>
+        @if (history().length === 0) {
+          <p class="text-sm text-muted">No history yet. Generate an image to see it here.</p>
+        } @else {
+          <ol class="history">
+            @for (item of history(); track item.timestamp) {
+              <li class="history__item">
+                <div class="history__text">{{ item.prompt }}</div>
+                <div class="history__meta">{{ item.timestamp | date: 'short' }}</div>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    </div>
+  </div>
+</section>
