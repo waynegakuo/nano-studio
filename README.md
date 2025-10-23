@@ -1,59 +1,101 @@
-# NanoStudio
+# Nano Studio 🚀
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.0.
+Transform simple smartphone product photos into studio-quality, culturally rich marketing assets — instantly. 📸✨
 
-## Development server
+Nano Studio aims to democratize high-quality product photography for Small and Medium-sized Enterprises (SMEs), particularly those selling authentic traditional goods (e.g., kanga, kikoy, Swahili crafts, local packaged foods). We provide a tool that transforms simple smartphone product snapshots into professional, culturally rich, and visually compelling marketing assets instantly.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## How it works 🧠🖼️
+Nano Studio utilizes Google's "Nano Banana" — the official Gemini 2.5 Flash Image generation and editing model — to combine an uploaded product image with a detailed, text-based background prompt.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- You upload a product snapshot 📷
+- You describe the desired background or vibe using natural language 📝
+- The model composes a studio-grade image that blends your product with an authentic, evocative backdrop in seconds ⚡
 
-## Code scaffolding
+"Nano Banana" (Gemini 2.5 Flash Image) uses conversational prompts to make consistent, high-quality edits to photos — changing colors, adding objects, altering textures, and more — while preserving realism and product integrity.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+## Why it matters 💡
+The core value proposition is the ability to generate studio-quality images with authentic, evocative backdrops in seconds, at minimal cost. This is especially impactful for SMEs and local artisans seeking:
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- Professional-looking product photos without hiring a studio 💼
+- Fast turnarounds for campaigns and catalogs ⏱️
+- Context-rich visuals that reflect cultural authenticity 🌍
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+## Features ✨
+- Single-image AI editing powered by Gemini 2.5 Flash Image ("Nano Banana")
+- Natural language prompt-based editing
+- Background generation and compositing
+- Consistent, realistic outputs tailored to your style
+- Built with Angular for a responsive, modern UI
 
-To build the project run:
+---
 
-```bash
-ng build
-```
+## Getting started 🛠️
+This project is built with Angular. If you’re setting it up locally:
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+1. Install dependencies
+   ```bash
+   npm install
+   ```
+2. Start the development server
+   ```bash
+   npm start
+   # or
+   ng serve
+   ```
+3. Open the app
+   - Visit http://localhost:4200/ in your browser. The app reloads on file changes.
 
-## Running unit tests
+---
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Usage guide 👩🏽‍💻👨‍💻
+- Upload a clear product photo (smartphone shots work great!)
+- Provide a descriptive prompt for the background, e.g.:
+  - "Warm wooden tabletop with coastal Swahili patterns, golden hour light"
+  - "Vibrant kanga fabric backdrop, soft shadows, minimalist props"
+- Generate and iterate — refine prompts to match your brand vibe
 
-```bash
-ng test
-```
+---
 
-## Running end-to-end tests
+## Notes on the model 🧩
+- "Nano Banana" refers to Google's Gemini 2.5 Flash image generation and editing model.
+- It enables conversational edits like color changes, adding objects, or texture adjustments.
+- Ideal for single-image product scenarios where consistency and speed matter.
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
-```
+## Scripts 📜
+Common Angular CLI scripts:
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- Development server
+  ```bash
+  ng serve
+  ```
+- Build for production
+  ```bash
+  ng build
+  ```
+- Unit tests
+  ```bash
+  ng test
+  ```
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Roadmap 🗺️ (ideas)
+- Preset prompt templates for common product categories
+- Batch processing for product catalogs
+- Export presets for marketplaces (Shopify, Jumia, etc.)
+- Fine-grained controls for lighting and shadow realism
+
+---
+
+---
+
+## License 📄
+This project is for educational and prototyping purposes. Consider reviewing licensing and API terms for any production deployment.
