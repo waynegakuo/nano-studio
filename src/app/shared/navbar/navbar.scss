@@ -25,3 +25,108 @@
   align-items: center;
   gap: 1rem;
 }
+
+/* Why Nano Studio popup */
+.why-menu {
+  position: relative;
+}
+
+.why-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--surface, #fff);
+  color: var(--text, #111827);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  &::after {
+    content: 'Why Nano Studio';
+  }
+
+  @media screen and (max-width: 767.98px) {
+    font-size: 0.875rem;
+    &::after {
+      content: 'Why Nano Studio';
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+  }
+}
+
+.why-trigger:hover {
+  background: color-mix(in srgb, var(--surface, #fff) 92%, black 8%);
+}
+
+.why-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #2563eb) 30%, transparent 70%);
+  border-color: var(--primary, #2563eb);
+}
+
+.why-icon {
+  line-height: 0;
+}
+
+.why-popup {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(520px, 90vw);
+  background: var(--surface, #fff);
+  color: var(--text, #111827);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 1rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+/* Use presence + class on parent for animation without keeping hidden node focusable */
+.why-menu.open .why-popup {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.why-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.why-intro {
+  margin: 0 0 0.5rem 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.why-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.why-list li {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem;
+}
+
+.bullet {
+  display: inline-flex;
+  width: 1.25rem;
+  justify-content: center;
+}
