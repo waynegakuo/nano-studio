@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {PromptHistoryItem} from '../../models/prompt.model';
+import {AiService} from '../../services/ai/ai.service';
 
 
 
@@ -43,6 +44,8 @@ export class Home {
   readonly file = signal<File | null>(null);
   readonly filePreviewUrl = signal<string | null>(null);
 
+  base64Image= signal<string | null>(null);
+
   // Generation state
   readonly loading = signal<boolean>(false);
   readonly resultUrl = signal<string | null>(null);
@@ -50,8 +53,10 @@ export class Home {
   // History
   readonly history = signal<PromptHistoryItem[]>([]);
 
-  readonly canGenerate = computed(() => !!this.file() && this.prompt().trim().length > 0 && !this.loading());
+  readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading());
   readonly hasResult = computed(() => this.resultUrl() !== null);
+
+  aiService = inject(AiService);
 
   onSelectPreset(preset: { id: number; title: string; description: string }): void {
     // Mark the selected preset by title and prefill the prompt with its description
@@ -72,22 +77,31 @@ export class Home {
   }
 
   onFileChange(fileList: FileList | null): void {
-    const next = fileList && fileList.length ? fileList.item(0) : null;
-    if (!next) {
+    const file = fileList && fileList.length ? fileList.item(0) : null;
+    if (!file) {
       this.clearFile();
       return;
     }
-    const type = next.type.toLowerCase();
+    const type = file.type.toLowerCase();
     const isValid = type === 'image/jpeg' || type === 'image/png' || type === 'image/jpg';
     if (!isValid) {
       this.clearFile();
       alert('Please upload a JPG or PNG image.');
       return;
     }
-    this.file.set(next);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      // Extract the base64 data part (after 'data:image/jpeg;base64,')
+      const dataPart = base64.split(',')[1];
+      this.base64Image.set(dataPart)
+    }
+
+    reader.readAsDataURL(file);
+
     // Create preview URL (SSR-safe)
     if (typeof window !== 'undefined' && 'URL' in window) {
-      const url = URL.createObjectURL(next);
+      const url = URL.createObjectURL(file);
       this.filePreviewUrl.set(url);
     }
   }
@@ -108,34 +122,20 @@ export class Home {
     this.resultUrl.set(null);
 
     const currentPrompt = this.prompt().trim();
-    const currentFile = this.file();
 
-    try {
-      // Mock async call to Gemini image generation; replace with actual service integration
-      // For demo, we use the uploaded image as the "generated" output after a short delay
-      await new Promise((res) => setTimeout(res, 1000));
+    this.aiService.generateContent(this.prompt(), this.base64Image()!)
+      .then(res => {
+        this.resultUrl.set(res);
+        this.loading.set(false);
 
-      let outputUrl: string | null = null;
-      if (currentFile) {
-        if (typeof window !== 'undefined' && 'URL' in window) {
-          outputUrl = URL.createObjectURL(currentFile);
-        } else {
-          outputUrl = null;
-        }
-      }
-
-      this.resultUrl.set(outputUrl);
-
-      // Update history (prepend)
-      const item: PromptHistoryItem = {
-        prompt: currentPrompt,
-        timestamp: Date.now(),
-        resultUrl: outputUrl ?? undefined,
-      };
-      this.history.update((list) => [item, ...list].slice(0, 20));
-    } finally {
-      this.loading.set(false);
-    }
+        // Update history (prepend)
+        const item: PromptHistoryItem = {
+          prompt: currentPrompt,
+          timestamp: Date.now(),
+          resultUrl: res ?? undefined,
+        };
+        this.history.update((list) => [item, ...list].slice(0, 20));
+      })
   }
 
   downloadResult(anchor: HTMLAnchorElement): void {
