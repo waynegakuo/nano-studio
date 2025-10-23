@@ -19,7 +19,7 @@
     align-items: center;
     justify-content: center;
 
-    > b {
+    > span > b {
       background: var(--color-gradient-text);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
