@@ -41,13 +41,13 @@
       <div class="section">
         <div class="fw-semibold">Quick prompts</div>
         <div class="chips">
-          @for (p of presets(); track p) {
+          @for (preset of presets(); track preset) {
             <button
               type="button"
               class="chip"
-              [class.chip--active]="selectedPreset() === p"
-              (click)="onSelectPreset(p)"
-            >{{ p }}</button>
+              [class.chip--active]="selectedPreset() === preset.title"
+              (click)="onSelectPreset(preset)"
+            >{{ preset.title }}</button>
           }
         </div>
       </div>

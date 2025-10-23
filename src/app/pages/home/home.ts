@@ -13,11 +13,27 @@ import {PromptHistoryItem} from '../../models/prompt.model';
 })
 export class Home {
   // Preset prompts (could be externalized to a service later)
-  readonly presets = signal<string[]>([
-    'Studio lighting, high contrast product shot, reflective surface',
-    'Soft pastel background, minimal shadows, lifestyle vibe',
-    'Moody noir lighting, dramatic shadows, premium feel',
-    'Bright gradient backdrop, playful, vibrant retail look',
+  readonly presets = signal<{ id: number; title: string; description: string }[]>([
+    {
+      id: 1,
+      title: 'Studio',
+      description: 'Studio lighting, high contrast product shot, reflective surface'
+    },
+    {
+      id: 2,
+      title: 'Soft',
+      description: 'Soft pastel background, minimal shadows, lifestyle vibe'
+    },
+    {
+      id: 3,
+      title: 'Noir',
+      description: 'Moody noir lighting, dramatic shadows, premium feel'
+    },
+    {
+      id: 4,
+      title: 'Vibrant',
+      description: 'Bright gradient backdrop, playful, vibrant retail look'
+    },
   ]);
 
   readonly selectedPreset = signal<string | null>(null);
@@ -37,17 +53,21 @@ export class Home {
   readonly canGenerate = computed(() => !!this.file() && this.prompt().trim().length > 0 && !this.loading());
   readonly hasResult = computed(() => this.resultUrl() !== null);
 
-  onSelectPreset(preset: string): void {
-    this.selectedPreset.set(preset);
-    // Prefill into prompt but preserve any existing text by replacing entirely as per requirement
-    this.prompt.set(preset);
+  onSelectPreset(preset: { id: number; title: string; description: string }): void {
+    // Mark the selected preset by title and prefill the prompt with its description
+    this.selectedPreset.set(preset.title);
+    this.prompt.set(preset.description);
   }
 
   onPromptInput(value: string): void {
     this.prompt.set(value);
-    // If user edits prompt, clear selected preset if it no longer matches
-    if (this.selectedPreset() && this.selectedPreset() !== value) {
-      this.selectedPreset.set(null);
+    // If user edits the prompt so it no longer matches the description of the selected preset, clear selection
+    const selectedTitle = this.selectedPreset();
+    if (selectedTitle) {
+      const match = this.presets().find(p => p.title === selectedTitle);
+      if (!match || match.description !== value) {
+        this.selectedPreset.set(null);
+      }
     }
   }
 
