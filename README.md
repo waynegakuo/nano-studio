@@ -54,12 +54,16 @@ This project is built with Angular. If you’re setting it up locally:
 ---
 
 ## Usage guide 👩🏽‍💻👨‍💻
-- Upload a clear product photo (smartphone shots work great!)
-- Provide a descriptive prompt for the background, e.g.:
-  - "Warm wooden tabletop with coastal Swahili patterns, golden hour light"
+- Upload a clear JPG or PNG (well‑lit, uncluttered works best)
+- Try a quick prompt (Studio, Soft, Noir, Vibrant) or write your own, e.g.:
+  - "Soft natural light, wooden tabletop, cozy morning scene"
   - "Vibrant kanga fabric backdrop, soft shadows, minimalist props"
-- Generate and iterate — refine prompts to match your brand vibe
+- Click Generate
+- Download or share the result; refine the prompt and iterate
 
+Notes
+- Large images may take longer to process
+- Prompt history shows your last 20 prompts and when they were generated
 ---
 
 ## Notes on the model 🧩
