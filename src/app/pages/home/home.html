@@ -82,6 +82,8 @@
             class="btn btn-secondary"
             [href]="resultUrl()!"
             download="nano-generated.png"
+            (click)="downloadResult($event)"
+            rel="noopener"
           >Download</a>
         </div>
       } @else {

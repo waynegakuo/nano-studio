@@ -138,10 +138,76 @@ export class Home {
       })
   }
 
-  downloadResult(anchor: HTMLAnchorElement): void {
+  downloadResult(event: Event): void {
     const url = this.resultUrl();
     if (!url) return;
-    // Let the native anchor handle download via [href] + [download]
-    // No extra logic required; this method exists for potential analytics hooks.
+
+    const anchor = event.currentTarget as HTMLAnchorElement | null;
+    const isDataUrl = url.startsWith('data:');
+    const isIOS = typeof navigator !== 'undefined' && /iP(hone|od|ad)/.test(navigator.userAgent);
+
+    // iOS Safari/Chrome have limitations with the download attribute, especially for data URLs
+    if (isIOS) {
+      event.preventDefault();
+      try {
+        const blob = isDataUrl ? this.dataUrlToBlob(url) : null;
+
+        // Try Web Share API with files (best UX on iOS if supported)
+        const nav = navigator as Navigator & {
+          share?: (data: ShareData) => Promise<void>;
+          canShare?: (data?: ShareData) => boolean;
+        };
+
+        if (blob && nav.share) {
+          const file = new File([blob], 'nano-generated.png', { type: blob.type || 'image/png' });
+          const shareData: ShareData = { files: [file], title: 'Nano Studio', text: 'Generated image' };
+          const canShareFiles = typeof nav.canShare === 'function' ? nav.canShare(shareData) : true;
+          if (canShareFiles) {
+            nav.share(shareData).catch(() => {
+              // If user cancels or share fails, fallback to opening in a new tab
+              const blobUrl = URL.createObjectURL(blob);
+              window.open(blobUrl, '_blank');
+              setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+            });
+            return;
+          }
+        }
+
+        // Fallback: open the image in a new tab where the user can long‑press/save
+        const openUrl = blob ? URL.createObjectURL(blob) : url;
+        window.open(openUrl, '_blank');
+        if (blob) setTimeout(() => URL.revokeObjectURL(openUrl), 30000);
+      } catch {
+        // Last resort
+        window.open(url, '_blank');
+      }
+      return;
+    }
+
+    // Non‑iOS: allow default anchor download behavior, but ensure blob URLs for data URLs
+    if (isDataUrl && anchor) {
+      try {
+        const blob = this.dataUrlToBlob(url);
+        const blobUrl = URL.createObjectURL(blob);
+        anchor.href = blobUrl;
+        anchor.download = 'nano-generated.png';
+        // Let the native click continue; revoke after some time
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+      } catch {
+        // If conversion fails, fallback to original href
+        if (anchor) anchor.href = url;
+      }
+    }
+  }
+
+  private dataUrlToBlob(dataUrl: string): Blob {
+    const [meta, base64] = dataUrl.split(',');
+    const mimeMatch = /data:([^;]+);base64/.exec(meta);
+    const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
   }
 }
