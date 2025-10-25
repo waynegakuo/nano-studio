@@ -73,7 +73,12 @@
 
     <div class="card">
       <h2 class="text-xl fw-semibold">Result</h2>
-      @if (hasResult()) {
+      @if (loading()) {
+        <div class="loading-section">
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <p class="loading-message text-md">{{ loadingMessagesService.currentMessage() }}</p>
+        </div>
+      } @else if (hasResult()) {
         <div class="result">
           <img [src]="resultUrl()!" alt="Generated image result" />
         </div>
@@ -107,7 +112,7 @@
                 (keydown.enter)="onSelectHistoryItem(item)"
                 (keydown.space)="onSelectHistoryItem(item)"
               >
-                <div class="history__text">{{ item.prompt | truncateText: 55 }}</div>
+                <div class="history__text">{{ item.prompt | truncateText: 50 }}</div>
                 <div class="history__meta">{{ item.timestamp | date: 'short' }}</div>
               </li>
             }

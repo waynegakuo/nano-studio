@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@ang
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {PromptHistoryItem} from '../../models/prompt.model';
 import {AiService} from '../../services/ai/ai.service';
+import {LoadingMessagesService} from '../../services/loading-messages/loading-messages.service';
 import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
 
 
@@ -59,6 +60,7 @@ export class Home {
   readonly hasResult = computed(() => this.resultUrl() !== null);
 
   aiService = inject(AiService);
+  loadingMessagesService = inject(LoadingMessagesService);
 
   onSelectPreset(preset: { id: number; title: string; description: string }): void {
     // Mark the selected preset by title and prefill the prompt with its description
@@ -124,10 +126,16 @@ export class Home {
     this.loading.set(true);
     this.resultUrl.set(null);
 
+    // Start cycling through loading messages every second
+    this.loadingMessagesService.startCycling();
+
     const currentPrompt = this.prompt().trim();
 
     this.aiService.generateContent(this.prompt(), this.base64Image()!)
       .then(res => {
+        // Stop message cycling
+        this.loadingMessagesService.stopCycling();
+
         this.resultUrl.set(res);
         this.loading.set(false);
 
@@ -138,6 +146,12 @@ export class Home {
           resultUrl: res ?? undefined,
         };
         this.history.update((list) => [item, ...list].slice(0, 20));
+      })
+      .catch(error => {
+        // Stop message cycling on error as well
+        this.loadingMessagesService.stopCycling();
+        this.loading.set(false);
+        console.error('Generation failed:', error);
       })
   }
 
