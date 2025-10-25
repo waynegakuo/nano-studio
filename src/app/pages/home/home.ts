@@ -2,12 +2,13 @@ import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@ang
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {PromptHistoryItem} from '../../models/prompt.model';
 import {AiService} from '../../services/ai/ai.service';
+import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
 
 
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, TruncateTextPipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,7 @@ export class Home {
 
   // History
   readonly history = signal<PromptHistoryItem[]>([]);
+  readonly activeHistoryItem = signal<PromptHistoryItem | null>(null);
 
   readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading());
   readonly hasResult = computed(() => this.resultUrl() !== null);
@@ -61,6 +63,7 @@ export class Home {
   onSelectPreset(preset: { id: number; title: string; description: string }): void {
     // Mark the selected preset by title and prefill the prompt with its description
     this.selectedPreset.set(preset.title);
+    this.activeHistoryItem.set(null);
     this.prompt.set(preset.description);
   }
 
@@ -198,6 +201,15 @@ export class Home {
         if (anchor) anchor.href = url;
       }
     }
+  }
+
+  onSelectHistoryItem(item: PromptHistoryItem): void {
+    // Load the historical prompt and set it to the prompt signal
+    this.prompt.set(item.prompt);
+    // Set this item as the active history item
+    this.activeHistoryItem.set(item);
+    // Clear any previously selected preset since history item is now active
+    this.selectedPreset.set(null);
   }
 
   private dataUrlToBlob(dataUrl: string): Blob {

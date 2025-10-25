@@ -66,7 +66,7 @@
           [attr.aria-busy]="loading()"
           (click)="generate()"
         >
-          @if (loading()) { Generating... } @else { Generate image }
+          @if (loading()) { Visualizing... } @else { Generate image }
         </button>
       </div>
     </div>
@@ -97,8 +97,17 @@
         } @else {
           <ol class="history">
             @for (item of history(); track item.timestamp) {
-              <li class="history__item">
-                <div class="history__text">{{ item.prompt }}</div>
+              <li
+                class="history__item"
+                [class.history__item--active]="activeHistoryItem() === item"
+                tabindex="0"
+                role="button"
+                [attr.aria-label]="'Select prompt: ' + (item.prompt | truncateText: 55)"
+                (click)="onSelectHistoryItem(item)"
+                (keydown.enter)="onSelectHistoryItem(item)"
+                (keydown.space)="onSelectHistoryItem(item)"
+              >
+                <div class="history__text">{{ item.prompt | truncateText: 55 }}</div>
                 <div class="history__meta">{{ item.timestamp | date: 'short' }}</div>
               </li>
             }
