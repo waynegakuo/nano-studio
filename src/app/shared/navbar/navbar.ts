@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
+import {UserAuth} from '../user-auth/user-auth';
 
 @Component({
   selector: 'app-navbar',
-  imports: [NgOptimizedImage],
+  imports: [NgOptimizedImage, UserAuth],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
