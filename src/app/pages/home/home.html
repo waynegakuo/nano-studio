@@ -106,7 +106,7 @@
         @if (userPromptService.loading()) {
           <p class="text-sm text-muted">Loading history...</p>
         } @else if (userPromptService.error()) {
-          <p class="text-sm text-danger">{{ userPromptService.error() }}</p>
+          <p class="text-sm text-danger">Unable to load your history right now.</p>
         } @else if (history().length === 0) {
           <p class="text-sm text-muted">No history yet. Generate an image to see it here.</p>
         } @else {

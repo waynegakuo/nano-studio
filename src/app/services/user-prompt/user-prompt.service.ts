@@ -25,6 +25,8 @@ import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../core/auth/auth.service';
 import {HistoryPrompt, HistoryPromptBase, HistoryPromptId, NewHistoryPrompt} from '../../models/prompt.model';
+import { ErrorService } from '../core/error/error.service';
+import { mapToFriendlyError } from '../core/error/error-mapper';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +35,7 @@ export class UserPromptService {
   private readonly fs = inject(Firestore);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly errorService = inject(ErrorService);
 
   // State signals
   readonly loading = signal<boolean>(true);
@@ -76,7 +79,9 @@ export class UserPromptService {
           },
           error: (err) => {
             console.error('Failed to load history prompts:', err);
-            this.error.set(err?.message ?? 'Unknown error');
+            // Show simple message to user via toast; keep internal error state simple
+            this.errorService.showError(mapToFriendlyError(err));
+            this.error.set('Unable to load history.');
             this.loading.set(false);
           },
         }),
