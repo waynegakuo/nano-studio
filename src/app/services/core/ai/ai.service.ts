@@ -3,6 +3,8 @@ import {getAI, GoogleAIBackend} from '@angular/fire/ai';
 import {FirebaseApp} from '@angular/fire/app';
 import {GenerativeModel, getGenerativeModel} from '@angular/fire/vertexai';
 import {GenerateContentRequest, ResponseModality} from '@firebase/ai';
+import { ErrorService } from '../error/error.service';
+import { mapToFriendlyError } from '../error/error-mapper';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +12,7 @@ import {GenerateContentRequest, ResponseModality} from '@firebase/ai';
 export class AiService {
   private readonly model: GenerativeModel;
   firebaseApp = inject(FirebaseApp);
+  private readonly errorService = inject(ErrorService);
 
   error = signal<string | null>(null);
   resultImageURL = signal<string | null>(null);
@@ -107,7 +110,9 @@ export class AiService {
       const base64ImageResult = response.response.candidates?.[0]?.content?.parts?.find(part => part.inlineData)?.inlineData?.data;
 
       if(!base64ImageResult) {
-        this.error.set("AI failed to generate image. Try a simpler prompt or a different image.");
+        const msg = 'We could not create an image from that. Try a simpler prompt or a different photo.';
+        this.error.set(msg);
+        this.errorService.showError(msg);
         console.error("API response missing image data:", response);
         return "";
       }

@@ -1,13 +1,16 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {PromptHistoryItem} from '../../models/prompt.model';
-import {AiService} from '../../services/ai/ai.service';
+import {AiService} from '../../services/core/ai/ai.service';
+import {LoadingMessagesService} from '../../services/loading-messages/loading-messages.service';
+import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
+import {UserPromptService} from '../../services/user-prompt/user-prompt.service';
 
 
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, TruncateTextPipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,17 +53,30 @@ export class Home {
   readonly loading = signal<boolean>(false);
   readonly resultUrl = signal<string | null>(null);
 
-  // History
-  readonly history = signal<PromptHistoryItem[]>([]);
+  // History backed by UserPromptService
+  readonly userPromptService = inject(UserPromptService);
+  readonly history = computed<PromptHistoryItem[]>(() => {
+    const items = this.userPromptService.prompts();
+    return items.map(it => {
+      const created = it.createdAt;
+      const timestamp = created && typeof (created as { toMillis: () => number }).toMillis === 'function'
+        ? (created as { toMillis: () => number }).toMillis()
+        : Date.now();
+      return { prompt: it.prompt, timestamp };
+    });
+  });
+  readonly activeHistoryItem = signal<PromptHistoryItem | null>(null);
 
   readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading());
   readonly hasResult = computed(() => this.resultUrl() !== null);
 
   aiService = inject(AiService);
+  loadingMessagesService = inject(LoadingMessagesService);
 
   onSelectPreset(preset: { id: number; title: string; description: string }): void {
     // Mark the selected preset by title and prefill the prompt with its description
     this.selectedPreset.set(preset.title);
+    this.activeHistoryItem.set(null);
     this.prompt.set(preset.description);
   }
 
@@ -121,20 +137,31 @@ export class Home {
     this.loading.set(true);
     this.resultUrl.set(null);
 
+    // Start cycling through loading messages every second
+    this.loadingMessagesService.startCycling();
+
     const currentPrompt = this.prompt().trim();
 
     this.aiService.generateContent(this.prompt(), this.base64Image()!)
-      .then(res => {
+      .then(async res => {
+        // Stop message cycling
+        this.loadingMessagesService.stopCycling();
+
         this.resultUrl.set(res);
         this.loading.set(false);
 
-        // Update history (prepend)
-        const item: PromptHistoryItem = {
-          prompt: currentPrompt,
-          timestamp: Date.now(),
-          resultUrl: res ?? undefined,
-        };
-        this.history.update((list) => [item, ...list].slice(0, 20));
+        // Persist prompt to user history via service
+        try {
+          await this.userPromptService.addPrompt(currentPrompt);
+        } catch (e) {
+          console.error('Failed to save prompt history:', e);
+        }
+      })
+      .catch(error => {
+        // Stop message cycling on error as well
+        this.loadingMessagesService.stopCycling();
+        this.loading.set(false);
+        console.error('Generation failed:', error);
       })
   }
 
@@ -197,6 +224,24 @@ export class Home {
         // If conversion fails, fallback to original href
         if (anchor) anchor.href = url;
       }
+    }
+  }
+
+  onSelectHistoryItem(item: PromptHistoryItem): void {
+    // Load the historical prompt and set it to the prompt signal
+    this.prompt.set(item.prompt);
+    // Set this item as the active history item
+    this.activeHistoryItem.set(item);
+    // Clear any previously selected preset since history item is now active
+    this.selectedPreset.set(null);
+  }
+
+  async onClearHistory(): Promise<void> {
+    try {
+      await this.userPromptService.clearAllForCurrentUser();
+      this.activeHistoryItem.set(null);
+    } catch (e) {
+      console.error('Failed to clear history:', e);
     }
   }
 

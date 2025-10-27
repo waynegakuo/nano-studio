@@ -66,14 +66,19 @@
           [attr.aria-busy]="loading()"
           (click)="generate()"
         >
-          @if (loading()) { Generating... } @else { Generate image }
+          @if (loading()) { Visualizing... } @else { Generate image }
         </button>
       </div>
     </div>
 
     <div class="card">
       <h2 class="text-xl fw-semibold">Result</h2>
-      @if (hasResult()) {
+      @if (loading()) {
+        <div class="loading-section">
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <p class="loading-message text-md">{{ loadingMessagesService.currentMessage() }}</p>
+        </div>
+      } @else if (hasResult()) {
         <div class="result">
           <img [src]="resultUrl()!" alt="Generated image result" />
         </div>
@@ -91,14 +96,33 @@
       }
 
       <div class="section">
-        <h3 class="text-lg fw-semibold mb-2">Prompt history</h3>
-        @if (history().length === 0) {
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg fw-semibold">Prompt history</h3>
+          @if (history().length > 0) {
+            <button type="button" class="btn btn-link text-sm" (click)="onClearHistory()">Clear all</button>
+          }
+        </div>
+
+        @if (userPromptService.loading()) {
+          <p class="text-sm text-muted">Loading history...</p>
+        } @else if (userPromptService.error()) {
+          <p class="text-sm text-danger">Unable to load your history right now.</p>
+        } @else if (history().length === 0) {
           <p class="text-sm text-muted">No history yet. Generate an image to see it here.</p>
         } @else {
           <ol class="history">
             @for (item of history(); track item.timestamp) {
-              <li class="history__item">
-                <div class="history__text">{{ item.prompt }}</div>
+              <li
+                class="history__item"
+                [class.history__item--active]="activeHistoryItem() === item"
+                tabindex="0"
+                role="button"
+                [attr.aria-label]="'Select prompt: ' + (item.prompt | truncateText: 55)"
+                (click)="onSelectHistoryItem(item)"
+                (keydown.enter)="onSelectHistoryItem(item)"
+                (keydown.space)="onSelectHistoryItem(item)"
+              >
+                <div class="history__text">{{ item.prompt | truncateText: 50 }}</div>
                 <div class="history__meta">{{ item.timestamp | date: 'short' }}</div>
               </li>
             }

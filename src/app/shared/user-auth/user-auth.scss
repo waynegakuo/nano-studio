@@ -1,0 +1,148 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--color-card);
+  color: var(--color-black);
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+
+  &:hover { background: color-mix(in oklab, var(--color-elevated), black 6%); color: var(--color-white); }
+  &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+}
+
+/* Grouped content variants for responsive switch */
+.auth-btn__content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.auth-btn__content--icon { display: none; }
+
+/* Keep spinner inline size consistent */
+.login-icon { width: 18px; height: 18px; }
+
+/* Mobile: icon-only sign-in button to keep navbar compact */
+@media screen and (max-width: 767.98px) {
+  .auth-btn {
+    padding: 0.375rem; /* tighter padding */
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+  }
+  .auth-btn__content--full { display: none; }
+  .auth-btn__content--icon { display: inline-flex; }
+  .auth-btn__signing-text { display: none; }
+}
+
+.auth {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.avatar-btn:hover { background: transparent; }
+.avatar-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.caret-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: var(--color-black);
+  padding: 0;
+  cursor: pointer;
+}
+.caret-btn:hover { background: transparent; }
+.caret-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.caret-icon { transition: transform 150ms ease; }
+.caret-btn[aria-expanded="true"] .caret-icon { transform: rotate(180deg); }
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+.avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font: 600 0.75rem/1 var(--font-ui, 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial);
+  color: var(--color-white);
+  background: var(--color-primary);
+  border-radius: inherit;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 220px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-2);
+  z-index: 10;
+}
+.menu__header {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) var(--space-2);
+}
+.menu__item {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--color-black);
+  cursor: pointer;
+}
+.menu__item:hover { background: color-mix(in oklab, var(--color-elevated), black 6%); color: var(--color-white); }
+.menu__item:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* Inline spinner for the sign-in button */
+.btn__spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  animation: spin 700ms linear infinite;
+}
