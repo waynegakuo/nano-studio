@@ -1,0 +1,14 @@
+@if (messages().length > 0) {
+  <ul class="toasts" role="list">
+    @for (m of messages(); track m.id) {
+      <li class="toast"
+          [class.toast--info]="m.level === 'info'"
+          [class.toast--warning]="m.level === 'warning'"
+          [class.toast--error]="m.level === 'error'"
+          role="status">
+        <span class="toast__text">{{ m.text }}</span>
+        <button type="button" class="toast__close" (click)="dismiss(m.id)" aria-label="Dismiss notification">×</button>
+      </li>
+    }
+  </ul>
+}
