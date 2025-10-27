@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {PromptHistoryItem} from '../../models/prompt.model';
-import {AiService} from '../../services/ai/ai.service';
+import {AiService} from '../../services/core/ai/ai.service';
 import {LoadingMessagesService} from '../../services/loading-messages/loading-messages.service';
 import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
 
