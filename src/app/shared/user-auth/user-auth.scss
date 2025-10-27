@@ -6,16 +6,40 @@
 .auth-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
   background: var(--color-card);
   color: var(--color-black);
   border: 1px solid #e5e7eb;
-  padding: 0.5rem 0.75rem;;
+  padding: 0.5rem 0.75rem;
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
-
 
   &:hover { background: color-mix(in oklab, var(--color-elevated), black 6%); color: var(--color-white); }
   &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+}
+
+/* Grouped content variants for responsive switch */
+.auth-btn__content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.auth-btn__content--icon { display: none; }
+
+/* Keep spinner inline size consistent */
+.login-icon { width: 18px; height: 18px; }
+
+/* Mobile: icon-only sign-in button to keep navbar compact */
+@media screen and (max-width: 767.98px) {
+  .auth-btn {
+    padding: 0.375rem; /* tighter padding */
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+  }
+  .auth-btn__content--full { display: none; }
+  .auth-btn__content--icon { display: inline-flex; }
+  .auth-btn__signing-text { display: none; }
 }
 
 .auth {
