@@ -6,33 +6,17 @@ import {
   collectionData,
   deleteDoc,
   doc,
+  getDoc,
   orderBy,
   query,
   serverTimestamp,
-  Timestamp,
   updateDoc,
   where,
 } from '@angular/fire/firestore';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../core/auth/auth.service';
-
-export type HistoryPromptId = string;
-
-export interface HistoryPromptBase {
-  userId: string;
-  prompt: string;
-  // When created on the client we submit serverTimestamp(); when reading it's a Timestamp
-  createdAt: Timestamp | null;
-  updatedAt: Timestamp | null;
-}
-
-export type NewHistoryPrompt = Omit<HistoryPromptBase, 'createdAt' | 'updatedAt'> & {
-  createdAt: ReturnType<typeof serverTimestamp>;
-  updatedAt: ReturnType<typeof serverTimestamp>;
-};
-
-export type HistoryPrompt = HistoryPromptBase & { id: HistoryPromptId };
+import {HistoryPrompt, HistoryPromptBase, HistoryPromptId, NewHistoryPrompt} from '../../models/prompt.model';
 
 @Injectable({
   providedIn: 'root'
@@ -88,6 +72,12 @@ export class UserPromptService {
       .subscribe();
   }
 
+  /**
+   * Add a new prompt to the user's history.
+   * @param prompt The prompt text to add.
+   * @returns A promise that resolves with the ID of the newly added prompt.
+   * @throws If the user is not authenticated.
+   */
   async addPrompt(prompt: string): Promise<HistoryPromptId> {
     const userId = this.auth.getUserId();
     if (!userId) throw new Error('Not authenticated');
@@ -103,6 +93,33 @@ export class UserPromptService {
     return ref.id;
   }
 
+  /**
+   * Get a specific prompt by ID.
+   * @param id The ID of the prompt to retrieve.
+   * @returns A promise that resolves with the prompt data or null if not found.
+   */
+  async getPrompt(id: HistoryPromptId): Promise<HistoryPrompt | null> {
+    const userId = this.auth.getUserId();
+    if (!userId) throw new Error('Not authenticated');
+
+    const docRef = doc(this.fs, 'historyPrompts', id);
+    const snap = await getDoc(docRef);
+    if (!snap.exists()) return null;
+
+    const data = snap.data() as unknown as HistoryPromptBase;
+    // Ensure the current user owns the document
+    if (data.userId !== userId) return null;
+
+    return { id: snap.id, ...data } as HistoryPrompt;
+  }
+
+  /**
+   * Update an existing prompt.
+   * @param id The ID of the prompt to update.
+   * @param updates The updates to apply to the prompt.
+   * @returns A promise that resolves when the update is complete.
+   * @throws If the user is not authenticated.
+   */
   async updatePrompt(id: HistoryPromptId, updates: Partial<Pick<HistoryPromptBase, 'prompt'>>): Promise<void> {
     const userId = this.auth.getUserId();
     if (!userId) throw new Error('Not authenticated');
@@ -113,12 +130,26 @@ export class UserPromptService {
     } as Record<string, unknown>);
   }
 
+  /**
+   * Delete a specific prompt by ID.
+   * @param id The ID of the prompt to delete.
+   * @returns A promise that resolves when the deletion is complete.
+   * @throws If the user is not authenticated.
+   */
   async deletePrompt(id: HistoryPromptId): Promise<void> {
     const userId = this.auth.getUserId();
     if (!userId) throw new Error('Not authenticated');
     const docRef = doc(this.fs, 'historyPrompts', id);
     await deleteDoc(docRef);
   }
+
+  /**
+   * Clear all prompts for the current user.
+   * @returns A promise that resolves when the deletion is complete.
+   * @throws If the user is not authenticated.
+   */
+  async clearAll(): Promise<void> {}
+
 
   async clearAllForCurrentUser(): Promise<void> {
     const userId = this.auth.getUserId();
