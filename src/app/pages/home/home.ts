@@ -4,6 +4,7 @@ import {PromptHistoryItem} from '../../models/prompt.model';
 import {AiService} from '../../services/core/ai/ai.service';
 import {LoadingMessagesService} from '../../services/loading-messages/loading-messages.service';
 import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
+import {UserPromptService} from '../../services/user-prompt/user-prompt.service';
 
 
 
@@ -52,8 +53,18 @@ export class Home {
   readonly loading = signal<boolean>(false);
   readonly resultUrl = signal<string | null>(null);
 
-  // History
-  readonly history = signal<PromptHistoryItem[]>([]);
+  // History backed by UserPromptService
+  readonly userPromptService = inject(UserPromptService);
+  readonly history = computed<PromptHistoryItem[]>(() => {
+    const items = this.userPromptService.prompts();
+    return items.map(it => {
+      const created = it.createdAt;
+      const timestamp = created && typeof (created as { toMillis: () => number }).toMillis === 'function'
+        ? (created as { toMillis: () => number }).toMillis()
+        : Date.now();
+      return { prompt: it.prompt, timestamp };
+    });
+  });
   readonly activeHistoryItem = signal<PromptHistoryItem | null>(null);
 
   readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading());
@@ -132,20 +143,19 @@ export class Home {
     const currentPrompt = this.prompt().trim();
 
     this.aiService.generateContent(this.prompt(), this.base64Image()!)
-      .then(res => {
+      .then(async res => {
         // Stop message cycling
         this.loadingMessagesService.stopCycling();
 
         this.resultUrl.set(res);
         this.loading.set(false);
 
-        // Update history (prepend)
-        const item: PromptHistoryItem = {
-          prompt: currentPrompt,
-          timestamp: Date.now(),
-          resultUrl: res ?? undefined,
-        };
-        this.history.update((list) => [item, ...list].slice(0, 20));
+        // Persist prompt to user history via service
+        try {
+          await this.userPromptService.addPrompt(currentPrompt);
+        } catch (e) {
+          console.error('Failed to save prompt history:', e);
+        }
       })
       .catch(error => {
         // Stop message cycling on error as well
@@ -224,6 +234,15 @@ export class Home {
     this.activeHistoryItem.set(item);
     // Clear any previously selected preset since history item is now active
     this.selectedPreset.set(null);
+  }
+
+  async onClearHistory(): Promise<void> {
+    try {
+      await this.userPromptService.clearAllForCurrentUser();
+      this.activeHistoryItem.set(null);
+    } catch (e) {
+      console.error('Failed to clear history:', e);
+    }
   }
 
   private dataUrlToBlob(dataUrl: string): Blob {

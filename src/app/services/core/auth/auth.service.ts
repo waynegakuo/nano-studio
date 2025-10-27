@@ -1,4 +1,4 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {EnvironmentInjector, inject, Injectable, runInInjectionContext, signal} from '@angular/core';
 import {Auth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, User} from '@angular/fire/auth';
 import {from, Observable, of, switchMap} from 'rxjs';
 
@@ -17,6 +17,9 @@ export class AuthService {
 
   // Signal for loading state
   isLoading = signal<boolean>(true);
+
+  private environmentInjector = inject(EnvironmentInjector);
+
 
   constructor() {
     // Initialize auth state listener once service is constructed
@@ -43,11 +46,14 @@ export class AuthService {
    */
   signInWithGoogle(): Observable<User> {
     const provider = new GoogleAuthProvider();
-    return from(signInWithPopup(this.auth, provider)).pipe(
-      switchMap(result => {
-        return of(result.user);
-      })
-    );
+
+    return runInInjectionContext(this.environmentInjector, () => {
+      return from(signInWithPopup(this.auth, provider)).pipe(
+        switchMap(result => {
+          return of(result.user);
+        })
+      );
+    });
   }
 
   /**
@@ -55,7 +61,9 @@ export class AuthService {
    * @returns Promise that resolves when sign out is complete
    */
   signOut(): Observable<void> {
-    return from(signOut(this.auth));
+    return runInInjectionContext(this.environmentInjector, () => {
+      return from(signOut(this.auth));
+    })
   }
 
   /**

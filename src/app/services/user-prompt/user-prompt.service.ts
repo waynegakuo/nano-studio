@@ -1,4 +1,12 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Injectable,
+  computed,
+  inject,
+  signal,
+  EnvironmentInjector,
+  runInInjectionContext
+} from '@angular/core';
 import {
   Firestore,
   addDoc,
@@ -32,6 +40,8 @@ export class UserPromptService {
   readonly prompts = signal<HistoryPrompt[]>([]);
   readonly count = computed(() => this.prompts().length);
 
+  private environmentInjector = inject(EnvironmentInjector);
+
   private readonly collectionRef = collection(this.fs, 'historyPrompts');
 
   constructor() {
@@ -44,15 +54,18 @@ export class UserPromptService {
             this.prompts.set([]);
             return of<HistoryPrompt[]>([]);
           }
-          this.loading.set(true);
-          const q = query(
-            this.collectionRef,
-            where('userId', '==', user.uid),
-            orderBy('createdAt', 'desc')
-          );
-          return collectionData(q, { idField: 'id' }) as unknown as ReturnType<
-            typeof of<HistoryPrompt[]>
-          >;
+          // Use runInInjectionContext to ensure the correct environment is used for the query
+          return runInInjectionContext(this.environmentInjector, () =>{
+            this.loading.set(true);
+            const q = query(
+              this.collectionRef,
+              where('userId', '==', user.uid),
+              orderBy('createdAt', 'desc')
+            );
+            return collectionData(q, { idField: 'id' }) as unknown as ReturnType<
+              typeof of<HistoryPrompt[]>
+            >;
+          })
         }),
         tap({
           next: (items) => {
@@ -89,8 +102,10 @@ export class UserPromptService {
       updatedAt: serverTimestamp(),
     };
 
-    const ref = await addDoc(this.collectionRef, data as unknown as Record<string, unknown>);
-    return ref.id;
+    return runInInjectionContext(this.environmentInjector, async () => {
+      const ref = await addDoc(this.collectionRef, data as unknown as Record<string, unknown>);
+      return ref.id;
+    });
   }
 
   /**

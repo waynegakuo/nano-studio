@@ -96,8 +96,18 @@
       }
 
       <div class="section">
-        <h3 class="text-lg fw-semibold mb-2">Prompt history</h3>
-        @if (history().length === 0) {
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg fw-semibold">Prompt history</h3>
+          @if (history().length > 0) {
+            <button type="button" class="btn btn-link text-sm" (click)="onClearHistory()">Clear all</button>
+          }
+        </div>
+
+        @if (userPromptService.loading()) {
+          <p class="text-sm text-muted">Loading history...</p>
+        } @else if (userPromptService.error()) {
+          <p class="text-sm text-danger">{{ userPromptService.error() }}</p>
+        } @else if (history().length === 0) {
           <p class="text-sm text-muted">No history yet. Generate an image to see it here.</p>
         } @else {
           <ol class="history">
