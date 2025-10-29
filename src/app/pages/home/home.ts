@@ -5,6 +5,7 @@ import {AiService} from '../../services/core/ai/ai.service';
 import {LoadingMessagesService} from '../../services/loading-messages/loading-messages.service';
 import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
 import {UserPromptService} from '../../services/user-prompt/user-prompt.service';
+import {AuthService} from '../../services/core/auth/auth.service';
 
 
 
@@ -41,6 +42,10 @@ export class Home {
   ]);
 
   readonly selectedPreset = signal<string | null>(null);
+
+  // Auth state
+  private authService = inject(AuthService);
+  readonly isAuthed = computed(() => this.authService.isAuthenticated());
 
   // User input state
   readonly prompt = signal<string>('');

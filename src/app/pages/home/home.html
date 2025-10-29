@@ -107,9 +107,12 @@
           <p class="text-sm text-muted">Loading history...</p>
         } @else if (userPromptService.error()) {
           <p class="text-sm text-danger">Unable to load your history right now.</p>
-        } @else if (history().length === 0) {
+        } @else if (!isAuthed()) {
+          <p class="text-sm text-muted">Want to save your prompts? Sign in to keep a history of your conversations.</p>
+        } @else if (isAuthed() && history().length === 0) {
           <p class="text-sm text-muted">No history yet. Generate an image to see it here.</p>
-        } @else {
+        }
+         @else {
           <ol class="history">
             @for (item of history(); track item.timestamp) {
               <li
@@ -132,7 +135,7 @@
     </div>
   </div>
 
-  <div class="footer">
+  <div class="footer text-muted">
     Made with ❤️ by <a href="https://github.com/waynegakuo" target="_blank" rel="noopener">Wayne Gakuo</a>
   </div>
 
