@@ -141,6 +141,35 @@ NOTE: Enabling the Gemini Developer API will automatically generate for you the 
 6. The second step shows you a session code that should tally with the one seen back in your project's terminal. Click "Yes".
 7. In Step 3, copy the code and paste it into the terminal.
 
+
+### Step 4: Link Your Firebase Project 🔄
+
+You need to make sure your project is linked correctly:
+
+**Method 1: Using Firebase CLI (Recommended)**
+
+Set your Firebase project as the default:
+```bash
+firebase use YOUR_PROJECT_ID
+```
+> Replace `YOUR_PROJECT_ID` with your actual Firebase project ID (you can find this in the Firebase Console URL or project settings).
+
+**Method 2: Manual Configuration**
+
+If the CLI method doesn't work, you can edit the `.firebaserc` file manually:
+
+1. Open `.firebaserc` in your project root directory
+2. Update it to match your project ID:
+   ```json
+   {
+     "projects": {
+       "default": "YOUR_PROJECT_ID"
+     }
+   }
+   ```
+
+> **💡 Tip:** You can verify your project is linked correctly by running `firebase projects:list` to see your available projects.
+
 This project is built with Angular. If you’re setting it up locally:
 
 1. Install dependencies
