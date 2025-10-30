@@ -243,6 +243,30 @@ Now you need to register a web app in Firebase and get the configuration:
    ```
    Click "Continue to console" to continue.
 
+## Firebase Authentication Setup
+
+### Step 7: Enable Authentication
+- Click the "Build" dropdown in the sidebar
+- Select "Authentication"
+- Click "Get started"
+- Select "Google"
+- Toggle the "Enable" switch
+- Provide a support email address
+- Click "Save"
+
+##  Firebase Firestore Database
+
+### Step 8: Enable Firestore Database
+- Click the "Build" dropdown in the sidebar
+- Select "Firestore Database"
+- Click "Create database"
+- Select "Standard Edition"
+- You can leave the database ID as "default"
+- Select the closest location to your users
+- Click "Next"
+- Select "Start in test mode"
+- Click "Create"
+
 This project is built with Angular. If you’re setting it up locally:
 
 1. Install dependencies
