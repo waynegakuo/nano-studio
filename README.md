@@ -1,4 +1,20 @@
-# Nano Studio 🚀
+<div align="center">
+
+# 🖼️ Nano Studio
+
+### *AI-Powered Image Editing for Small and Medium-sized Enterprises*
+
+[![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io/)
+[![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)](https://firebase.google.com/)
+[![Google AI](https://img.shields.io/badge/Google%20AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+
+---
+
+Nano Studio is a web app that enables users to transform simple smartphone product photos into professional, culturally rich, and visually compelling marketing assets instantly. It uses Google's Gemini 2.5 Flash Image generation and editing model to combine an uploaded product image with a detailed, text-based background prompt, to produce a high-quality, visually compelling image for marketing needs.
+</div>
+
+## 🌟 About the App
 
 Transform simple smartphone product photos into studio-quality, culturally rich marketing assets — instantly. 📸✨
 
