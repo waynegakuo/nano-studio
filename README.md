@@ -170,6 +170,21 @@ If the CLI method doesn't work, you can edit the `.firebaserc` file manually:
 
 > **💡 Tip:** You can verify your project is linked correctly by running `firebase projects:list` to see your available projects.
 
+
+### Step 5: Configure Firebase Services
+   ```bash
+   firebase init
+   ```
+Configure Firebase services when prompted:
+- **Select services:** Choose and "Firestore" (use space to select, enter to confirm)
+- **Select a location for your Firestore database:** Choose a region closer to your users
+- **Firestore Rules:** Accept the default `firestore.rules` file
+- **Firestore Indexes:** Accept the default `firestore.indexes.json` file
+- **Initialize or overwrite:** When asked to either initialize or overwrite the codebase, select "Overwrite"
+- **⚠️ Important:** When asked to overwrite existing files, select "No" to preserve the project code
+- **Install dependencies:** Choose "Yes"
+
+
 This project is built with Angular. If you’re setting it up locally:
 
 1. Install dependencies
