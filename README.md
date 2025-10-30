@@ -36,6 +36,111 @@ The core value proposition is the ability to generate studio-quality images with
 ---
 
 ## Getting started 🛠️
+
+### 🧪 Quick Start with Firebase Studio
+
+**The fastest way to get Nova Reel running:**
+
+<div align="center">
+
+<a href="https://studio.firebase.google.com/import?url=https%3A%2F%2Fgithub.com%2Fwaynegakuo%2Fnano-studio">
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://cdn.firebasestudio.dev/btn/try_dark_32.svg">
+    <source
+      media="(prefers-color-scheme: light)"
+      srcset="https://cdn.firebasestudio.dev/btn/try_light_32.svg">
+    <img
+      height="32"
+      alt="Try in Firebase Studio"
+      src="https://cdn.firebasestudio.dev/btn/try_blue_32.svg">
+  </picture>
+</a>
+
+*Click above to launch Nano Studio in Firebase Studio*
+
+</div>
+
+**After launching:**
+
+1. **📂 Open Terminal** - Navigate to the Terminal tab in Firebase Studio
+2. **📦 Install Dependencies** - Run these commands one by one:
+   ```bash
+   npm install
+   cd functions
+   npm install
+   cd ..
+   ```
+
+---
+
+## ⚙️ Configuration Guide
+
+> **💡 Complete Setup Guide** - Follow these steps to configure Firebase and required APIs for Nano Studio.
+
+
+## 🏗️ Step 1: Create Firebase Project</b>
+
+### Firebase Console Setup
+
+1. **🌐 Open Firebase Console**
+- Navigate to [Firebase Console](https://console.firebase.google.com/)
+
+2. **➕ Create New Project**
+- Click "Create a new Firebase project"
+- Enter project name: `nano-studio-app` (or your preferred name)
+- Google Analytics is optional, so no need to enable it
+
+3. **💳 Upgrade to Blaze Plan** ⚠️ **Required for AI Features**
+- Locate billing section in bottom-left sidebar
+- Click "Upgrade" next to Spark plan
+- Select "Pay as you Go - Blaze Plan"
+- Choose "Google Cloud Platform Trial Billing Account"
+- Set budget alert (e.g., $2 USD)
+- Click "Link Cloud Billing Account"
+
+### Step 2: Enable Required APIs for Firebase AI Logic ☁️
+
+Your Firebase project needs Gemini Developer API & Vertex AI Gemini API enabled. In your Firebase Project Dashboard:
+1. **Enable Gemini Developer API**
+- In the left sidebar, click 'AI'
+- Click on 'AI Logic'. This brings up the Firebase AI Logic dashboard view
+- Click on 'Get Started'
+- On the sidebar that appears, on the 'Gemini Developer API' option, click 'Get Started with this API'
+- When prompted with another pop-up, click 'Enable' and also enable AI Monitoring.
+- No need to add the Firebase AI Logic SDK as this is already done for you in the project. Click 'Continue'.
+
+NOTE: Enabling the Gemini Developer API will automatically generate for you the Gemini API Key that you need in executing AI actions in your project.
+
+2. **Enable Vertex AI Gemini API**
+- Back in the Firebase AI Logic dashboard view, click on 'Settings'
+- You will notice that Vertex AI Gemini API is not enabled. For improved performance to our image generation needs, we will enable this API.
+- Click on 'Enable required APIs'
+- On the sidebar that appears, click 'Enable APIs'
+- AI Monitoring should have been already enabled when enabling the Gemini AI API.
+- Click 'Continue'.
+
+### Step 3: Install and Setup Firebase CLI 🛠️
+
+> **📝 Note for Firebase Studio users:** Skip the CLI installation step and go directly to logging in.
+
+1. **Install Firebase CLI** (skip if using Firebase Studio):
+   ```bash
+   npm install -g firebase-tools
+   ```
+
+2. **Log in to Firebase:**
+   ```bash
+   firebase login
+   ```
+
+3. In the terminal, you will be prompted to enter to visit a URL to authenticate using an authorization code.
+4. Open the URL, select the same Google account you used to create the Firebase project.
+5. Click the "Yes, I just ran this command" button.
+6. The second step shows you a session code that should tally with the one seen back in your project's terminal. Click "Yes".
+7. In Step 3, copy the code and paste it into the terminal.
+
 This project is built with Angular. If you’re setting it up locally:
 
 1. Install dependencies
@@ -49,7 +154,7 @@ This project is built with Angular. If you’re setting it up locally:
    ng serve
    ```
 3. Open the app
-   - Visit http://localhost:4200/ in your browser. The app reloads on file changes.
+  - Visit http://localhost:4200/ in your browser. The app reloads on file changes.
 
 ---
 
