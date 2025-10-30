@@ -115,7 +115,7 @@ NOTE: Enabling the Gemini Developer API will automatically generate for you the 
 
 2. **Enable Vertex AI Gemini API**
 - Back in the Firebase AI Logic dashboard view, click on 'Settings'
-- You will notice that Vertex AI Gemini API is not enabled. For improved performance to our image generation needs, we will enable this API.
+- You will notice that Vertex AI Gemini API is not enabled. For improved performance to our image editing needs, we will enable this API.
 - Click on 'Enable required APIs'
 - On the sidebar that appears, click 'Enable APIs'
 - AI Monitoring should have been already enabled when enabling the Gemini AI API.
@@ -266,6 +266,27 @@ Now you need to register a web app in Firebase and get the configuration:
 - Click "Next"
 - Select "Start in test mode"
 - Click "Create"
+
+
+## 🚀 Deployment and Running
+
+### Step 9: Deploy and Run Your Application
+
+1. **Run the application locally:**
+   ```bash
+   cd ..
+   ng serve
+   ```
+   Your app will be available at `http://localhost:4200`. However, on Firebase Studio, hold Ctrl+Click on the localhost URL to open it in a new tab.
+
+2. **Build for production (optional):**
+   ```bash
+   ng build
+   firebase deploy --only hosting
+   ```
+
+> **🎉 Congratulations!** Your Nano Studio app should now be running with full AI-powered image editing capabilities!
+
 
 This project is built with Angular. If you’re setting it up locally:
 
