@@ -184,6 +184,64 @@ Configure Firebase services when prompted:
 - **⚠️ Important:** When asked to overwrite existing files, select "No" to preserve the project code
 - **Install dependencies:** Choose "Yes"
 
+### Step 6: Configure Firebase Web App 🔥
+
+Now you need to register a web app in Firebase and get the configuration:
+
+1. **Register your web app:**
+  - Go to [Firebase Console](https://console.firebase.google.com/) and select your project
+  - Click the gear icon (⚙️) next to "Project Overview" → "Project settings"
+  - Scroll to "Your apps" section
+  - If you don't have a web app yet, click "Add app" → Web icon (`</>`)
+  - Give your app a name (e.g., "Nova Reel Web App")
+  - Check the Firebase Hosting box
+  - Click "Register app"
+
+2. **Get your Firebase configuration:**
+  - In the "Add Firebase SDK" step, copy the configuration object (it looks like this):
+   ```javascript
+   {
+     apiKey: "your-api-key-here",
+     authDomain: "your-project.firebaseapp.com",
+     projectId: "your-project-id",
+     storageBucket: "your-project.appspot.com",
+     messagingSenderId: "123456789",
+     appId: "your-app-id",
+     measurementId: "your-measurement-id"
+   }
+   ```
+
+3. **Update your environment files:**
+
+   Open both environment files and replace the `firebaseConfig` object with your own:
+
+   **For `src/environments/environment.ts` (production):**
+   ```typescript
+   export const environment = {
+     production: true,
+     firebaseConfig: {
+       // Paste your Firebase config here
+       apiKey: "your-api-key-here",
+       authDomain: "your-project.firebaseapp.com",
+       projectId: "your-project-id",
+       storageBucket: "your-project.appspot.com",
+       messagingSenderId: "123456789",
+       appId: "your-app-id",
+       measurementId: "your-measurement-id"
+     }
+   };
+   ```
+
+   **For `src/environments/environment.development.ts` (development):**
+   ```typescript
+   export const environment = {
+     production: false,
+     firebaseConfig: {
+       // Same Firebase config as above
+     }
+   };
+   ```
+   Click "Continue to console" to continue.
 
 This project is built with Angular. If you’re setting it up locally:
 
