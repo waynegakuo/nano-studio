@@ -27,6 +27,7 @@ import { AuthService } from '../core/auth/auth.service';
 import {HistoryPrompt, HistoryPromptBase, HistoryPromptId, NewHistoryPrompt} from '../../models/prompt.model';
 import { ErrorService } from '../core/error/error.service';
 import { mapToFriendlyError } from '../core/error/error-mapper';
+import {Analytics, logEvent} from '@angular/fire/analytics';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +43,9 @@ export class UserPromptService {
   readonly error = signal<string | null>(null);
   readonly prompts = signal<HistoryPrompt[]>([]);
   readonly count = computed(() => this.prompts().length);
+
+  // Firebase Analytics
+  fireAnalytics = inject(Analytics);
 
   private environmentInjector = inject(EnvironmentInjector);
 
@@ -109,6 +113,7 @@ export class UserPromptService {
 
     return runInInjectionContext(this.environmentInjector, async () => {
       const ref = await addDoc(this.collectionRef, data as unknown as Record<string, unknown>);
+      logEvent(this.fireAnalytics, 'prompt_saved');
       return ref.id;
     });
   }

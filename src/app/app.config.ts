@@ -9,6 +9,7 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { ErrorService } from './services/core/error/error.service';
 import { mapToFriendlyError } from './services/core/error/error-mapper';
+import {getAnalytics, provideAnalytics} from '@angular/fire/analytics';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,6 +31,7 @@ export const appConfig: ApplicationConfig = {
           errorService.showError(mapToFriendlyError(err));
         }
       } as ErrorHandler)
-    }
+    },
+    provideAnalytics(() => getAnalytics())
   ]
 };

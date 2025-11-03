@@ -6,6 +6,7 @@ import {LoadingMessagesService} from '../../services/loading-messages/loading-me
 import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
 import {UserPromptService} from '../../services/user-prompt/user-prompt.service';
 import {AuthService} from '../../services/core/auth/auth.service';
+import {Analytics, logEvent} from '@angular/fire/analytics';
 
 
 
@@ -77,6 +78,7 @@ export class Home {
 
   aiService = inject(AiService);
   loadingMessagesService = inject(LoadingMessagesService);
+  fireAnalytics = inject(Analytics);
 
   onSelectPreset(preset: { id: number; title: string; description: string }): void {
     // Mark the selected preset by title and prefill the prompt with its description
@@ -153,6 +155,7 @@ export class Home {
         this.loadingMessagesService.stopCycling();
 
         this.resultUrl.set(res);
+        logEvent(this.fireAnalytics, 'image_generated');
         this.loading.set(false);
 
         // Persist prompt to user history via service
@@ -209,6 +212,7 @@ export class Home {
         const openUrl = blob ? URL.createObjectURL(blob) : url;
         window.open(openUrl, '_blank');
         if (blob) setTimeout(() => URL.revokeObjectURL(openUrl), 30000);
+        logEvent(this.fireAnalytics, 'image_downloaded');
       } catch {
         // Last resort
         window.open(url, '_blank');
@@ -225,6 +229,7 @@ export class Home {
         anchor.download = 'nano-generated.png';
         // Let the native click continue; revoke after some time
         setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+        logEvent(this.fireAnalytics, 'image_downloaded');
       } catch {
         // If conversion fails, fallback to original href
         if (anchor) anchor.href = url;
