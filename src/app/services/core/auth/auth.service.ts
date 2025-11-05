@@ -29,7 +29,7 @@ export class AuthService {
   /**
    * Initializes the authentication state listener
    */
-  private initAuthState(): void {
+  public initAuthState(): void {
     onAuthStateChanged(this.auth, (user) => {
       this.currentUser.set(user);
       this.isAuthenticated.set(!!user);

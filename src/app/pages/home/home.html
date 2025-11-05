@@ -59,15 +59,21 @@
       </div>
 
       <div class="actions flex items-center gap-3">
-        <button
-          type="button"
-          class="btn btn-primary"
-          [disabled]="!canGenerate()"
-          [attr.aria-busy]="loading()"
-          (click)="generate()"
-        >
-          @if (loading()) { Visualizing... } @else { Generate image }
-        </button>
+        <div class="flex flex-col">
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!canGenerate()"
+              [attr.aria-busy]="loading()"
+              (click)="generate()"
+              [title]="!canGenerate() && remainingGenerations() <= 0 ? 'You have reached your daily generation limit.' : ''"
+            >
+              @if (loading()) { Visualizing... } @else { Generate image }
+            </button>
+            <p class="text-sm text-muted text-center mt-1">
+              {{ remainingGenerations() }} generations left today
+            </p>
+        </div>
       </div>
     </div>
 
