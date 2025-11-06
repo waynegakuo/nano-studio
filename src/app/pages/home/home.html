@@ -120,7 +120,7 @@
         } @else if (!isAuthed()) {
           <p class="text-sm text-muted">As a guest, you only have <b>2 image generations</b> to test out Nano Studio. Sign in to save your prompt history and unlock more.</p>
         } @else if (isAuthed() && history().length === 0) {
-          <p class="text-sm text-muted">No history yet. Generate an image to see it here.</p>
+          <p class="text-sm text-muted">No history yet. Generate an image to see it here. You have a maximum of 8 image generations today. Use it wisely and enjoy😁</p>
         }
          @else {
           <ol class="history">

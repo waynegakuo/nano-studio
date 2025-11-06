@@ -81,7 +81,7 @@ export class Home {
   readonly remainingGenerations = computed(() => {
     const user = this.authService.currentUser();
     // Set quota based on user type
-    const quota = (user && !user.isAnonymous) ? 10 : 2;
+    const quota = (user && !user.isAnonymous) ? 8 : 2;
     // Read the reactive `generations` signal from the service
     const usedGenerations = this.userDataService.generations();
     const remaining = quota - usedGenerations;
