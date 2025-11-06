@@ -94,7 +94,7 @@ export class Home {
       }
     }
 
-    const quota = 5; // For Google users
+    const quota = 10; // For Google users
     if (userData) {
       if (userData.lastGenerationDate === today) {
         return quota - (userData.imageGenerations || 0);

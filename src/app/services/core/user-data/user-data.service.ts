@@ -93,7 +93,7 @@ export class UserDataService {
     }
 
     const today = new Date().toDateString();
-    const quota = user.isAnonymous ? 2 : 5;
+    const quota = user.isAnonymous ? 2 : 10;
 
     if (userData.lastGenerationDate !== today) {
       this.resetImageGenerations(user.uid);
