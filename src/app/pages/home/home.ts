@@ -80,27 +80,13 @@ export class Home {
 
   readonly remainingGenerations = computed(() => {
     const user = this.authService.currentUser();
-    const userData = this.userDataService.userData();
-    const today = new Date().toDateString();
-
-    if(isPlatformBrowser(this.platformId)){
-      if (!user || user.isAnonymous) {
-        const lastGuestGenerationDate = localStorage.getItem('lastGuestGenerationDate');
-        if (lastGuestGenerationDate !== today) {
-          return 2;
-        }
-        const guestGenerations = parseInt(localStorage.getItem('guestGenerations') || '0', 10);
-        return 2 - guestGenerations;
-      }
-    }
-
-    const quota = 10; // For Google users
-    if (userData) {
-      if (userData.lastGenerationDate === today) {
-        return quota - (userData.imageGenerations || 0);
-      }
-    }
-    return quota;
+    // Set quota based on user type
+    const quota = (user && !user.isAnonymous) ? 10 : 2;
+    // Read the reactive `generations` signal from the service
+    const usedGenerations = this.userDataService.generations();
+    const remaining = quota - usedGenerations;
+    // Ensure the result is never negative
+    return Math.max(0, remaining);
   });
 
   readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading() && this.userDataService.canGenerateImage(this.authService.currentUser()));
