@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import {ChangeDetectionStrategy, Component, computed, inject, PLATFORM_ID, signal} from '@angular/core';
+import {CommonModule, isPlatformBrowser, NgOptimizedImage} from '@angular/common';
 import {PromptHistoryItem} from '../../models/prompt.model';
 import {AiService} from '../../services/core/ai/ai.service';
 import {LoadingMessagesService} from '../../services/loading-messages/loading-messages.service';
@@ -7,6 +7,7 @@ import {TruncateTextPipe} from '../../pipes/truncate-text/truncate-text-pipe';
 import {UserPromptService} from '../../services/user-prompt/user-prompt.service';
 import {AuthService} from '../../services/core/auth/auth.service';
 import {Analytics, logEvent} from '@angular/fire/analytics';
+import {UserDataService} from '../../services/core/user-data/user-data.service';
 
 
 
@@ -45,7 +46,9 @@ export class Home {
   readonly selectedPreset = signal<string | null>(null);
 
   // Auth state
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
+  public userDataService = inject(UserDataService);
+
   readonly isAuthed = computed(() => this.authService.isAuthenticated());
 
   // User input state
@@ -58,6 +61,8 @@ export class Home {
   // Generation state
   readonly loading = signal<boolean>(false);
   readonly resultUrl = signal<string | null>(null);
+
+  platformId = inject(PLATFORM_ID);
 
   // History backed by UserPromptService
   readonly userPromptService = inject(UserPromptService);
@@ -73,7 +78,18 @@ export class Home {
   });
   readonly activeHistoryItem = signal<PromptHistoryItem | null>(null);
 
-  readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading());
+  readonly remainingGenerations = computed(() => {
+    const user = this.authService.currentUser();
+    // Set quota based on user type
+    const quota = (user && !user.isAnonymous) ? 8 : 2;
+    // Read the reactive `generations` signal from the service
+    const usedGenerations = this.userDataService.generations();
+    const remaining = quota - usedGenerations;
+    // Ensure the result is never negative
+    return Math.max(0, remaining);
+  });
+
+  readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading() && this.userDataService.canGenerateImage(this.authService.currentUser()));
   readonly hasResult = computed(() => this.resultUrl() !== null);
 
   aiService = inject(AiService);
@@ -148,6 +164,8 @@ export class Home {
     this.loadingMessagesService.startCycling();
 
     const currentPrompt = this.prompt().trim();
+
+    this.userDataService.incrementImageGenerations(this.authService.currentUser());
 
     this.aiService.generateContent(this.prompt(), this.base64Image()!)
       .then(async res => {

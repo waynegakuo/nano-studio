@@ -59,15 +59,25 @@
       </div>
 
       <div class="actions flex items-center gap-3">
-        <button
-          type="button"
-          class="btn btn-primary"
-          [disabled]="!canGenerate()"
-          [attr.aria-busy]="loading()"
-          (click)="generate()"
-        >
-          @if (loading()) { Visualizing... } @else { Generate image }
-        </button>
+        <div class="flex flex-col">
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!canGenerate()"
+              [attr.aria-busy]="loading()"
+              (click)="generate()"
+              [title]="!canGenerate() && remainingGenerations() <= 0 ? 'You have reached your daily generation limit.' : ''"
+            >
+              @if (loading()) { Visualizing... } @else { Generate image }
+            </button>
+            <p class="text-sm text-muted text-center mt-1">
+              @if (remainingGenerations() <= 0) {
+                You have reached your daily generation limit.
+              } @else {
+                {{ remainingGenerations() }} generations left today
+              }
+            </p>
+        </div>
       </div>
     </div>
 
@@ -108,9 +118,9 @@
         } @else if (userPromptService.error()) {
           <p class="text-sm text-danger">Unable to load your history right now.</p>
         } @else if (!isAuthed()) {
-          <p class="text-sm text-muted">Want to save your prompts? Sign in to keep a history of your conversations.</p>
+          <p class="text-sm text-muted">As a guest, you have a maximum of <b>2 image generations</b> to test out Nano Studio. Sign in to save your prompt history and unlock more.</p>
         } @else if (isAuthed() && history().length === 0) {
-          <p class="text-sm text-muted">No history yet. Generate an image to see it here.</p>
+          <p class="text-sm text-muted">No history yet. Generate an image to see it here. You have a maximum of 8 image generations today. Use it wisely and enjoy😁</p>
         }
          @else {
           <ol class="history">
