@@ -165,12 +165,13 @@ export class Home {
 
     const currentPrompt = this.prompt().trim();
 
-    this.userDataService.incrementImageGenerations(this.authService.currentUser());
-
     this.aiService.generateContent(this.prompt(), this.base64Image()!)
       .then(async res => {
         // Stop message cycling
         this.loadingMessagesService.stopCycling();
+
+        // Increment image generations count for anonymous or signed-in user
+        this.userDataService.incrementImageGenerations(this.authService.currentUser());
 
         this.resultUrl.set(res);
         logEvent(this.fireAnalytics, 'image_generated');

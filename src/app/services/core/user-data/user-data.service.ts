@@ -18,6 +18,7 @@ export class UserDataService {
   private platformId = inject(PLATFORM_ID);
 
   userData = signal<UserData | null>(null);
+  firestoreUserData = signal<UserData | null>(null);
   generations = signal<number>(0);
 
   constructor() {
@@ -33,6 +34,7 @@ export class UserDataService {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(userData => {
+      console.log('After auth', userData)
       // userData will be UserDataService | null, which is assignable to signal<UserDataService | null>
       this.userData.set(userData);
     });
@@ -94,6 +96,7 @@ export class UserDataService {
    */
   canGenerateImage(user: User | null): boolean {
     if (!user) { // Anonymous user
+      console.log('Anonymous user')
       const guestGenerations = parseInt(localStorage.getItem('guestGenerations') || '0', 10);
       const lastGuestGenerationDate = localStorage.getItem('lastGuestGenerationDate');
       const today = new Date().toDateString();
@@ -108,17 +111,23 @@ export class UserDataService {
 
     const userData = this.userData();
     if (!userData) {
-      return false;
+      // If we have an authenticated user but no user data document yet
+      // (e.g., a brand new user), they should be allowed to generate.
+      // Their count is effectively 0.
+      return true;
     }
 
+    // This part handles authenticated users (both anonymous and signed-in)
     const today = new Date().toDateString();
     const quota = user.isAnonymous ? 2 : 8;
 
+    // If the last generation was not today, reset their count and allow generation.
     if (userData.lastGenerationDate !== today) {
       this.resetImageGenerations(user.uid);
       return true;
     }
 
+    // If they have generated today, check if they are still within their quota.
     return (userData.imageGenerations || 0) < quota;
   }
 
@@ -146,10 +155,12 @@ export class UserDataService {
     const newCount = currentGenerations + 1;
     this.generations.set(newCount); // Optimistically update the signal
 
-    updateDoc(userDocRef, {
+    // Use setDoc with merge: true to create the document if it doesn't exist,
+    // or update it if it does. This handles the case for a new user's first generation.
+    setDoc(userDocRef, {
       imageGenerations: newCount,
       lastGenerationDate: new Date().toDateString()
-    });
+    }, { merge: true });
   }
 
   /**
