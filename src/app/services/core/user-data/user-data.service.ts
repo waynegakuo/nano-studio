@@ -18,7 +18,6 @@ export class UserDataService {
   private platformId = inject(PLATFORM_ID);
 
   userData = signal<UserData | null>(null);
-  firestoreUserData = signal<UserData | null>(null);
   generations = signal<number>(0);
 
   constructor() {
@@ -34,7 +33,6 @@ export class UserDataService {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(userData => {
-      console.log('After auth', userData)
       // userData will be UserDataService | null, which is assignable to signal<UserDataService | null>
       this.userData.set(userData);
     });
