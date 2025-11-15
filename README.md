@@ -43,25 +43,24 @@ The core value proposition is the ability to generate studio-quality images with
 ---
 
 ## Features ✨
-- Single-image AI editing powered by Gemini 2.5 Flash Image ("Nano Banana")
-- Natural language prompt-based editing
-- Background generation and compositing
-- Consistent, realistic outputs tailored to your style
-- Built with Angular for a responsive, modern UI
+- **AI-Powered Image Generation**: Utilizes Google's Gemini 2.5 Flash model to generate high-quality product images.
+- **Prompt-Based Editing**: Users can describe the desired background and style using natural language.
+- **Authentication**: Secure user authentication with Google, powered by Firebase Authentication.
+- **Prompt History**: Saves and displays a history of user prompts, stored in Firestore.
+- **Responsive UI**: Built with Angular, ensuring a seamless experience across devices.
 
 ---
 
 ## Code Highlights 👨🏾‍💻
-The core logic for interacting with the Gemini model is in `src/app/services/core/ai/ai.service.ts`.
+The application's core functionalities are encapsulated in several key services.
 
-### 1. Model Initialization
-The service initializes the `gemini-2.5-flash-image` model, configured to return a JPEG image.
+### 1. AI Service (`ai.service.ts`)
+This service is responsible for initializing the Gemini model and generating images based on user prompts.
 
+**Model Initialization:**
 ```typescript
 // src/app/services/core/ai/ai.service.ts
-
 constructor() {
-  // Initialize Gemini Developer API/Vertex AI Gemini API Service
   const geminiAI = getAI(this.firebaseApp, {backend: new GoogleAIBackend()});
 
   this.model = getGenerativeModel(geminiAI, {
@@ -74,12 +73,11 @@ constructor() {
 }
 ```
 
-### 2. Content Generation
-The `generateContent` method constructs a detailed payload containing the system prompt, the user's text prompt, and the uploaded image (as a base64 string).
+**Content Generation with System Prompt:**
+The `generateContent` method constructs a detailed payload that includes a system prompt to guide the AI, the user's text prompt, and the uploaded image.
 
 ```typescript
 // src/app/services/core/ai/ai.service.ts
-
 async generateContent(prompt: string, base64Img: string): Promise<string> {
   const payloadText = `You are NanoViz, an expert AI visual stylist...`; // Full system prompt
 
@@ -89,86 +87,119 @@ async generateContent(prompt: string, base64Img: string): Promise<string> {
         role: 'user',
         parts: [
           { text: payloadText },
-          {
-            inlineData: {
-              mimeType: 'image/jpeg',
-              data: base64Img,
-            }
-          }
+          { inlineData: { mimeType: 'image/jpeg', data: base64Img } }
         ]
       }
     ],
-    generationConfig: {
-      responseModalities: [ResponseModality.IMAGE],
-    },
+    // ...
   };
-
   const response = await this.model.generateContent(payload);
+  
+  const base64ImageResult = response.response.candidates?.[0]?.content?.parts?.find(part => part.inlineData)?.inlineData?.data;
+  
   // ...
+  
+  return `data:image/png;base64,${base64ImageResult}`;
 }
 ```
 
-### 3. System Prompt
-A detailed system prompt guides the AI to act as a professional product photographer, ensuring high-quality, context-aware results while preserving the product's integrity.
+### 2. Authentication Service (`auth.service.ts`)
+Handles user authentication using Firebase, supporting sign-in with Google.
 
 ```typescript
-// src/app/services/core/ai/ai.service.ts
+// src/app/services/core/auth/auth.service.ts
+export class AuthService {
+  currentUser = signal<User | null>(null);
+  isAuthenticated = signal<boolean>(false);
 
-const payloadText = `You are NanoViz, an expert AI visual stylist specializing in professional product photography.
+  constructor() {
+    onAuthStateChanged(this.auth, (user) => {
+      this.currentUser.set(user);
+      this.isAuthenticated.set(!!user);
+    });
+  }
 
-PRIMARY GOAL:
-Transform product images into high-end, market-ready visuals while maintaining brand integrity and enhancing market appeal.
-
-CORE CAPABILITIES:
-1. Product Enhancement
-- Maintain product as primary focal point with perfect clarity
-- Preserve exact: colors, textures, proportions, branding elements
-- Optimize lighting and contrast for product details
-
-2. Environmental Integration
-- Seamlessly composite products into authentic settings
-...
-`;
+  signInWithGoogle(): Observable<User> {
+    const provider = new GoogleAuthProvider();
+    return from(signInWithPopup(this.auth, provider)).pipe(
+      switchMap(result => of(result.user))
+    );
+  }
+}
 ```
 
-### 4. Frontend Integration
-The `Home` component in `src/app/pages/home/home.ts` injects the `AiService` and calls the `generateContent` method. The returned image URL is stored in a signal, which is then used to display the image in the template.
+### 3. User Prompt Service (`user-prompt.service.ts`)
+Manages the user's prompt history, persisting data to Firestore.
 
+```typescript
+// src/app/services/user-prompt/user-prompt.service.ts
+export class UserPromptService {
+  prompts = signal<HistoryPrompt[]>([]);
+
+  constructor() {
+    toObservable(this.auth.currentUser).pipe(
+      switchMap((user) => {
+        if (!user) {
+          this.prompts.set([]);
+          return of<HistoryPrompt[]>([]);
+        }
+        const q = query(
+          collection(this.fs, 'historyPrompts'),
+          where('userId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        );
+        return collectionData(q, { idField: 'id' }) as Observable<HistoryPrompt[]>;
+      }),
+      // ...
+    ).subscribe();
+  }
+
+  async addPrompt(prompt: string): Promise<string> {
+    const userId = this.auth.getUserId();
+    if (!userId) throw new Error('Not authenticated');
+    const ref = await addDoc(collection(this.fs, 'historyPrompts'), {
+      userId,
+      prompt,
+      createdAt: serverTimestamp(),
+    });
+    return ref.id;
+  }
+}
+```
+
+### 4. Frontend Integration (`home.ts` & `home.html`)
+The `Home` component ties these services together to provide a seamless user experience.
+
+**Component Logic:**
 ```typescript
 // src/app/pages/home/home.ts
-
 export class Home {
-  // ...
-  readonly resultUrl = signal<string | null>(null);
   aiService = inject(AiService);
+  userPromptService = inject(UserPromptService);
+  authService = inject(AuthService);
 
   async generate(): Promise<void> {
-    // ...
-    this.aiService.generateContent(this.prompt(), this.base64Image()!)
-      .then(async res => {
-        this.resultUrl.set(res);
-        // ...
-      })
+    const result = await this.aiService.generateContent(/* ... */);
+    this.resultUrl.set(result);
+    await this.userPromptService.addPrompt(/* ... */);
   }
 }
 ```
 
-The template (`src/app/pages/home/home.html`) conditionally renders the result image using the `resultUrl` signal.
-
+**Template:**
 ```html
 <!-- src/app/pages/home/home.html -->
-
-<div class="card">
-  <h2 class="text-xl fw-semibold">Result</h2>
-  @if (loading()) {
-    <!-- ... -->
-  } @else if (hasResult()) {
-    <div class="result">
-      <img [src]="resultUrl()!" alt="Generated image result" />
-    </div>
-    <!-- ... -->
+<div class="result">
+  @if (hasResult()) {
+    <img [src]="resultUrl()!" alt="Generated image result" />
   }
 </div>
+
+<ol class="history">
+  @for (item of history(); track item.timestamp) {
+    <li class="history__item">{{ item.prompt }}</li>
+  }
+</ol>
 ```
 
 ---
