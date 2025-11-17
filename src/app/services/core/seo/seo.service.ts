@@ -81,7 +81,7 @@ export class SeoService {
     }
 
     // Default fallback for build-time/unknown
-    return 'https://example.com';
+    return 'https://nano-studios.web.app/';
   }
 
   private currentPath(): string {
@@ -142,7 +142,7 @@ export class SeoService {
       return headers[name.toLowerCase()];
     };
     const proto = getHeader('x-forwarded-proto') || (req as any).protocol || 'https';
-    const host = getHeader('x-forwarded-host') || getHeader('host') || 'example.com';
+    const host = getHeader('x-forwarded-host') || getHeader('host') || 'nano-studios.web.app';
     return `${proto}://${host}`;
   }
 
