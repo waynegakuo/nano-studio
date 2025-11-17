@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Disallow sensitive or irrelevant routes (adjust if such routes are added)
+Disallow: /assets/
+
+Sitemap: https://example.com/sitemap.xml
