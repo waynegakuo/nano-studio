@@ -8,6 +8,7 @@ import {UserPromptService} from '../../services/user-prompt/user-prompt.service'
 import {AuthService} from '../../services/core/auth/auth.service';
 import {Analytics, logEvent} from '@angular/fire/analytics';
 import {UserDataService} from '../../services/core/user-data/user-data.service';
+import { SeoService } from '../../services/core/seo/seo.service';
 
 
 
@@ -95,6 +96,16 @@ export class Home {
   aiService = inject(AiService);
   loadingMessagesService = inject(LoadingMessagesService);
   fireAnalytics = inject(Analytics);
+  private readonly seo = inject(SeoService);
+
+  constructor() {
+    // Set homepage SEO on initial render (SSR-safe)
+    this.seo.setMeta({
+      title: 'Nano Studio — AI-Powered Image Editing for SMEs',
+      description: 'Create high-quality, on-brand product images using AI. Edit, enhance, and generate visuals in seconds.',
+      path: '/'
+    });
+  }
 
   onSelectPreset(preset: { id: number; title: string; description: string }): void {
     // Mark the selected preset by title and prefill the prompt with its description
