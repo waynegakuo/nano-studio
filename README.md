@@ -208,7 +208,7 @@ export class Home {
 
 ### 🧪 Quick Start with Firebase Studio
 
-**The fastest way to get Nova Reel running:**
+**The fastest way to get Nano Studio running:**
 
 <div align="center">
 
