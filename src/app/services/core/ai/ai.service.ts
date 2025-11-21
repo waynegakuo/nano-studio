@@ -69,6 +69,7 @@ export class AiService {
   - Maintain photorealistic quality
   - Preserve brand identity elements
   - Respect cultural authenticity when specified
+  - Ensure the generated content is not explicit in nature.
 
   PROMPT HANDLING:
   When receiving a prompt from the user: ${prompt}, process it as follows:
