@@ -10,6 +10,9 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { ErrorService } from './services/core/error/error.service';
 import { mapToFriendlyError } from './services/core/error/error-mapper';
 import {getAnalytics, provideAnalytics} from '@angular/fire/analytics';
+import {initializeAppCheck, provideAppCheck, ReCaptchaV3Provider} from '@angular/fire/app-check';
+
+const app = initializeApp(environment.firebaseConfig);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
+    provideFirebaseApp(() => app),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
     {
@@ -32,6 +35,10 @@ export const appConfig: ApplicationConfig = {
         }
       } as ErrorHandler)
     },
-    provideAnalytics(() => getAnalytics())
+    provideAnalytics(() => getAnalytics()),
+    provideAppCheck(() => initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6LeoXR8sAAAAAJaLBQl-bX-HYby1OI2IxPgtf7PU'),
+      isTokenAutoRefreshEnabled: true
+    }))
   ]
 };
