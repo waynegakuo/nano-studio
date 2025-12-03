@@ -1,0 +1,79 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  //height: 100vh;
+}
+
+.page {
+  width: 100%;
+  max-width: 900px;
+  padding: 2rem;
+}
+
+.powered-by-text {
+  font-size: var(--text-lg);
+  font-weight: bold;
+  margin: 0;
+}
+
+.page__header {
+  //margin-bottom: 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.maintenance-content {
+  .illustration {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img {
+      opacity: 0.8;
+    }
+
+    > b {
+      background: var(--color-gradient-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      font-weight: inherit;
+      font-size: var(--text-md);
+    }
+
+    @media (max-width: 767.98px) {
+      //flex-direction: column;
+
+      .powered-by-text {
+        margin-right: 0;
+        font-size: var(--text-sm);
+      }
+
+      > b {
+        font-size: var(--text-sm);
+      }
+    }
+  }
+
+  .title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .message {
+    font-size: 1.125rem;
+    color: var(--text-muted);
+    margin-bottom: 3rem;
+  }
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 2rem;
+  font-size: 0.875rem;
+}
