@@ -9,13 +9,13 @@
 
 import {HttpsError, onCallGenkit} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import { logger as genkitLogger } from 'genkit/logging'; // Import Genkit's logger
 import {defineSecret} from 'firebase-functions/params';
 import {initializeApp} from 'firebase-admin/app';
 import { genkit } from 'genkit'; // This is the core Genkit library itself
 import { enableFirebaseTelemetry } from '@genkit-ai/firebase'; // <-- NEW IMPORT
 import { z } from 'zod';
 import googleAI from '@genkit-ai/googleai';
+import { SYSTEM_PROMPT } from './system-prompt';
 
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY'); // *** NEW: Define Gemini API Key Secret ***
 
@@ -30,10 +30,8 @@ const ai = genkit({
   plugins: [
     googleAI({apiKey: process.env.GEMINI_API_KEY }),
   ],
-  model: googleAI.model('gemini-1.5-flash'), // Specify your Gemini model
+  model: googleAI.model('gemini-2.5-flash-image'), // Specify your Gemini model
 });
-
-genkitLogger.setLogLevel('debug'); // Or 'info', 'warn', 'error'
 
 const ImageGenerationInputSchema = z.object({
   prompt: z.string().describe('The prompt for the image generation'),
@@ -51,57 +49,7 @@ export const _generateImageFlowLogic = ai.defineFlow(
     outputSchema: ImageGenerationOutputSchema,
   },
   async({ prompt, base64Img }) => {
-    const payloadText = `You are NanoViz, an expert AI visual stylist specializing in professional product photography.
-
-  PRIMARY GOAL:
-  Transform product images into high-end, market-ready visuals while maintaining brand integrity and enhancing market appeal.
-
-  CORE CAPABILITIES:
-  1. Product Enhancement
-  - Maintain product as primary focal point with perfect clarity
-  - Preserve exact: colors, textures, proportions, branding elements
-  - Optimize lighting and contrast for product details
-
-  2. Environmental Integration
-  - Seamlessly composite products into authentic settings
-  - Utilize contextual elements:
-    * Local materials and textures
-    * Architectural elements
-    * Natural environment features
-    * Cultural design elements when specified
-
-  3. Lighting Expertise
-  - Implement professional lighting:
-    * Natural golden hour warmth
-    * Soft diffused daylight
-    * Balanced ambient illumination
-  - Avoid: harsh shadows, unflattering artificial lighting
-
-  4. Technical Requirements
-  - Output Style: Professional product photography
-  - Composition: Rule of thirds, leading lines
-  - Focus: Sharp product, artistic background blur
-  - Resolution: Maintain high detail clarity
-
-  CONSTRAINTS:
-  - Never alter core product characteristics
-  - Maintain photorealistic quality
-  - Preserve brand identity elements
-  - Respect cultural authenticity when specified
-  - Ensure the generated content is not explicit in nature.
-
-  PROMPT HANDLING:
-  When receiving a prompt from the user: ${prompt}, process it as follows:
-  1. Extract the editing instructions from the prompt
-  2. Apply the requested changes while adhering to all core capabilities and constraints
-  3. Maintain the product's integrity as the primary focus
-  4. Integrate the specific environmental and cultural elements as requested
-
-  OUTPUT HANDLING:
-  - Default: Provide visual output only
-  - When JSON requested: Return structured visualization plan
-  - If prompt unclear: Request specific clarification
-  `;
+    const payloadText = SYSTEM_PROMPT(prompt);
 
     try {
       // Generate image using the AI model
@@ -125,12 +73,20 @@ export const _generateImageFlowLogic = ai.defineFlow(
   }
 );
 
+// Detect if the function is running in the Firebase Emulator Suite.
+const isEmulated = process.env.FUNCTIONS_EMULATOR === 'true';
+
 export const generateImageFlow = onCallGenkit(
   {
     // Deployment options for the Cloud Function that wraps the Genkit flow
     secrets: [GEMINI_API_KEY],
     region: 'africa-south1', // Set your desired region
-    cors: true, // Allow all origins for local development (or restrict for prod)
+    // Allow all origins in the emulator, but restrict to your domain in production.
+    cors: isEmulated
+      ? true
+      : [
+          /^https:\/\/nano-studios(--[a-z0-9-]+)?\.web\.app$/, // Matches live site (nano-studios.web.app) and previews (nano-studios--<channel>.web.app)
+        ],
   },
   _generateImageFlowLogic
 );

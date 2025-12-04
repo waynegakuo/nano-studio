@@ -1,120 +1,41 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {getAI, GoogleAIBackend} from '@angular/fire/ai';
 import {FirebaseApp} from '@angular/fire/app';
-import {GenerativeModel, getGenerativeModel} from '@angular/fire/vertexai';
-import {GenerateContentRequest, ResponseModality} from '@firebase/ai';
+import {getFunctions, httpsCallable} from '@angular/fire/functions';
 import { ErrorService } from '../error/error.service';
-import { mapToFriendlyError } from '../error/error-mapper';
+
+interface ImageGenerationOutput {
+  base64ImageResult: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AiService {
-  private readonly model: GenerativeModel;
-  firebaseApp = inject(FirebaseApp);
   private readonly errorService = inject(ErrorService);
+  private firebaseApp = inject(FirebaseApp);
+  private functions;
 
   error = signal<string | null>(null);
   resultImageURL = signal<string | null>(null);
 
   constructor() {
-    // Initialize Gemini Developer API/Vertex AI Gemini API Service
-    const geminiAI = getAI(this.firebaseApp, {backend: new GoogleAIBackend()});
-
-    this.model = getGenerativeModel(geminiAI, {
-      model: 'gemini-2.5-flash-image',
-      generationConfig: {
-        responseModalities: [ResponseModality.IMAGE],
-        responseMimeType: 'image/jpeg',
-      },
-    });
+    this.functions = getFunctions(this.firebaseApp, 'africa-south1');
   }
 
   async generateContent(prompt: string, base64Img: string): Promise<string> {
-
-    const payloadText = `You are NanoViz, an expert AI visual stylist specializing in professional product photography.
-
-  PRIMARY GOAL:
-  Transform product images into high-end, market-ready visuals while maintaining brand integrity and enhancing market appeal.
-
-  CORE CAPABILITIES:
-  1. Product Enhancement
-  - Maintain product as primary focal point with perfect clarity
-  - Preserve exact: colors, textures, proportions, branding elements
-  - Optimize lighting and contrast for product details
-
-  2. Environmental Integration
-  - Seamlessly composite products into authentic settings
-  - Utilize contextual elements:
-    * Local materials and textures
-    * Architectural elements
-    * Natural environment features
-    * Cultural design elements when specified
-
-  3. Lighting Expertise
-  - Implement professional lighting:
-    * Natural golden hour warmth
-    * Soft diffused daylight
-    * Balanced ambient illumination
-  - Avoid: harsh shadows, unflattering artificial lighting
-
-  4. Technical Requirements
-  - Output Style: Professional product photography
-  - Composition: Rule of thirds, leading lines
-  - Focus: Sharp product, artistic background blur
-  - Resolution: Maintain high detail clarity
-
-  CONSTRAINTS:
-  - Never alter core product characteristics
-  - Maintain photorealistic quality
-  - Preserve brand identity elements
-  - Respect cultural authenticity when specified
-  - Ensure the generated content is not explicit in nature.
-
-  PROMPT HANDLING:
-  When receiving a prompt from the user: ${prompt}, process it as follows:
-  1. Extract the editing instructions from the prompt
-  2. Apply the requested changes while adhering to all core capabilities and constraints
-  3. Maintain the product's integrity as the primary focus
-  4. Integrate the specific environmental and cultural elements as requested
-
-  OUTPUT HANDLING:
-  - Default: Provide visual output only
-  - When JSON requested: Return structured visualization plan
-  - If prompt unclear: Request specific clarification
-  `;
-
-    const payload: GenerateContentRequest = {
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: payloadText },
-            {
-              inlineData: {
-                mimeType: 'image/jpeg',
-                data: base64Img,
-              }
-            }
-          ]
-        }
-      ],
-      // Request image-only output for the visualizer
-      generationConfig: {
-        responseModalities: [ResponseModality.IMAGE],
-      },
-    };
+    this.error.set(null); // Clear previous errors
 
     try {
-      const response = await this.model.generateContent(payload); // Generating the content
+      const generateImage = httpsCallable<{ prompt: string, base64Img: string }, ImageGenerationOutput>(this.functions, 'generateImageFlow');
+      const response = await generateImage({ prompt, base64Img });
 
-      const base64ImageResult = response.response.candidates?.[0]?.content?.parts?.find(part => part.inlineData)?.inlineData?.data;
+      const base64ImageResult = response.data.base64ImageResult;
 
       if(!base64ImageResult) {
         const msg = 'We could not create an image from that. Try a simpler prompt or a different photo.';
         this.error.set(msg);
         this.errorService.showError(msg);
-        console.error("API response missing image data:", response);
+        console.error("Firebase function response missing image data:", response);
         return "";
       }
 
@@ -123,12 +44,12 @@ export class AiService {
       return imageURL;
 
     }
-    catch (e) {
-      console.log('Gemini API Error: ', e);
-      this.error.set('Failed to generate content. Please try again.');
+    catch (e: any) {
+      console.error('Firebase function call error: ', e);
+      const msg = e.message || 'Failed to generate content. Please try again.';
+      this.error.set(msg);
+      this.errorService.showError(msg);
       return "";
     }
-
   }
-
 }
