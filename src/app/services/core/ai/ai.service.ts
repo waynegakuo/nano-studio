@@ -1,6 +1,5 @@
 import {inject, Injectable, signal} from '@angular/core';
-import {FirebaseApp} from '@angular/fire/app';
-import {getFunctions, httpsCallable} from '@angular/fire/functions';
+import {Functions, httpsCallable} from '@angular/fire/functions';
 import { ErrorService } from '../error/error.service';
 
 interface ImageGenerationOutput {
@@ -12,15 +11,10 @@ interface ImageGenerationOutput {
 })
 export class AiService {
   private readonly errorService = inject(ErrorService);
-  private firebaseApp = inject(FirebaseApp);
-  private functions;
+  private readonly functions = inject(Functions);
 
   error = signal<string | null>(null);
   resultImageURL = signal<string | null>(null);
-
-  constructor() {
-    this.functions = getFunctions(this.firebaseApp, 'africa-south1');
-  }
 
   async generateContent(prompt: string, base64Img: string): Promise<string> {
     this.error.set(null); // Clear previous errors
