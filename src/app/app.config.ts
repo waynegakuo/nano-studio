@@ -1,5 +1,9 @@
 import {
-  ApplicationConfig, ErrorHandler, inject, isDevMode, PLATFORM_ID, provideBrowserGlobalErrorListeners, provideZoneChangeDetection,
+  ApplicationConfig,
+  ErrorHandler,
+  inject,
+  isDevMode,
+  provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection
 } from '@angular/core';
 import { provideRouter } from '@angular/router';

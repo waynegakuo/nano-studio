@@ -52,17 +52,18 @@ export class UserPromptService {
   private readonly collectionRef = collection(this.fs, 'historyPrompts');
 
   constructor() {
-    // React to auth changes and subscribe to the user's prompt history in real-time
-    toObservable(this.auth.currentUser)
-      .pipe(
-        switchMap((user) => {
-          if (!user) {
-            this.loading.set(false);
-            this.prompts.set([]);
-            return of<HistoryPrompt[]>([]);
-          }
-          // Use runInInjectionContext to ensure the correct environment is used for the query
-          return runInInjectionContext(this.environmentInjector, () =>{
+    // Use runInInjectionContext to ensure the correct environment is used for the query
+    runInInjectionContext(this.environmentInjector, () =>{
+      // React to auth changes and subscribe to the user's prompt history in real-time
+      toObservable(this.auth.currentUser)
+        .pipe(
+          switchMap((user) => {
+            if (!user) {
+              this.loading.set(false);
+              this.prompts.set([]);
+              return of<HistoryPrompt[]>([]);
+            }
+
             this.loading.set(true);
             const q = query(
               this.collectionRef,
@@ -72,26 +73,27 @@ export class UserPromptService {
             return collectionData(q, { idField: 'id' }) as unknown as ReturnType<
               typeof of<HistoryPrompt[]>
             >;
-          })
-        }),
-        tap({
-          next: (items) => {
-            // items already include id via idField
-            this.prompts.set(items as HistoryPrompt[]);
-            this.loading.set(false);
-            this.error.set(null);
-          },
-          error: (err) => {
-            console.error('Failed to load history prompts:', err);
-            // Show simple message to user via toast; keep internal error state simple
-            this.errorService.showError(mapToFriendlyError(err));
-            this.error.set('Unable to load history.');
-            this.loading.set(false);
-          },
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
+          }),
+          tap({
+            next: (items) => {
+              // items already include id via idField
+              this.prompts.set(items as HistoryPrompt[]);
+              this.loading.set(false);
+              this.error.set(null);
+            },
+            error: (err) => {
+              console.error('Failed to load history prompts:', err);
+              // Show simple message to user via toast; keep internal error state simple
+              this.errorService.showError(mapToFriendlyError(err));
+              this.error.set('Unable to load history.');
+              this.loading.set(false);
+            },
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe();
+    })
+
   }
 
   /**

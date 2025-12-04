@@ -30,14 +30,17 @@ export class AuthService {
    * Initializes the authentication state listener
    */
   public initAuthState(): void {
-    onAuthStateChanged(this.auth, (user) => {
-      this.currentUser.set(user);
-      this.isAuthenticated.set(!!user);
-      this.isLoading.set(false);
-    }, (error) => {
-      console.error('Auth state change error:', error);
-      this.isLoading.set(false);
-    });
+    return runInInjectionContext(this.environmentInjector, () => {
+      onAuthStateChanged(this.auth, (user) => {
+        this.currentUser.set(user);
+        this.isAuthenticated.set(!!user);
+        this.isLoading.set(false);
+      }, (error) => {
+        console.error('Auth state change error:', error);
+        this.isLoading.set(false);
+      });
+    })
+
   }
 
   /**
