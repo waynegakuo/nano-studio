@@ -5,11 +5,11 @@ import {Home} from './pages/home/home';
 export const routes: Routes = [
   {
     path: '',
-    component: MaintenanceComponent
+    loadComponent: () => import('./pages/home/home').then(m => m.Home),
   },
   {
-    path: 'home',
-    loadComponent: () => import('./pages/home/home').then(m => m.Home),
+    path: 'maintenance',
+    component: MaintenanceComponent
   },
   {
     path: '**',
