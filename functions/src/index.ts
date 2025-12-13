@@ -30,7 +30,7 @@ const ai = genkit({
   plugins: [
     googleAI({apiKey: process.env.GEMINI_API_KEY }),
   ],
-  model: googleAI.model('gemini-2.5-flash-image'), // Specify your Gemini model
+  model: googleAI.model('gemini-3-pro-image-preview'), // Specify your Gemini model
 });
 
 const ImageGenerationInputSchema = z.object({
