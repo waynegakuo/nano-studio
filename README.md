@@ -52,154 +52,112 @@ The core value proposition is the ability to generate studio-quality images with
 ---
 
 ## Code Highlights 👨🏾‍💻
-The application's core functionalities are encapsulated in several key services.
+The application's core logic is split between the frontend (Angular) and the backend (Firebase Functions with Genkit).
 
-### 1. AI Service (`ai.service.ts`)
-This service is responsible for initializing the Gemini model and generating images based on user prompts.
+### 1. Backend: Genkit & Firebase Functions (`functions/src/index.ts`)
+The backend uses Genkit to define an AI flow that generates images and exposes it as a callable Firebase Function.
 
-**Model Initialization:**
-```typescript
-// src/app/services/core/ai/ai.service.ts
-constructor() {
-  const geminiAI = getAI(this.firebaseApp, {backend: new GoogleAIBackend()});
-
-  this.model = getGenerativeModel(geminiAI, {
-    model: 'gemini-3-pro-image-preview',
-    generationConfig: {
-      responseModalities: [ResponseModality.IMAGE],
-      responseMimeType: 'image/jpeg',
-    },
-  });
-}
-```
-
-**Content Generation with System Prompt:**
-The `generateContent` method constructs a detailed payload that includes a system prompt to guide the AI, the user's text prompt, and the uploaded image.
+**Genkit Flow Definition:**
+The `_generateImageFlowLogic` defines the AI workflow. It takes a prompt and a base64-encoded image, uses the Gemini model to generate a new image, and returns the result.
 
 ```typescript
-// src/app/services/core/ai/ai.service.ts
-async generateContent(prompt: string, base64Img: string): Promise<string> {
-  const payloadText = `You are NanoViz, an expert AI visual stylist...`; // Full system prompt
+// functions/src/index.ts
+export const _generateImageFlowLogic = ai.defineFlow(
+  {
+    name: 'generateImageFlow',
+    inputSchema: ImageGenerationInputSchema,
+    outputSchema: ImageGenerationOutputSchema,
+  },
+  async({ prompt, base64Img }) => {
+    const payloadText = SYSTEM_PROMPT(prompt);
 
-  const payload: GenerateContentRequest = {
-    contents: [
-      {
-        role: 'user',
-        parts: [
-          { text: payloadText },
-          { inlineData: { mimeType: 'image/jpeg', data: base64Img } }
-        ]
+    try {
+      // Generate image using the AI model
+      const response = await ai.generate([
+        {media: { url: `data:image/jpeg;base64,${base64Img}`}},
+        {text: payloadText}
+      ]);
+
+      const base64ImageResult = response.media?.url?.split(',')[1];
+
+      if (!base64ImageResult) {
+        throw new HttpsError('internal', 'Could not extract base64 image data from the response.');
       }
-    ],
-    // ...
-  };
-  const response = await this.model.generateContent(payload);
-  
-  const base64ImageResult = response.response.candidates?.[0]?.content?.parts?.find(part => part.inlineData)?.inlineData?.data;
-  
+
+      return { base64ImageResult };
+
+    } catch (e: any) {
+      logger.error("Error generating image:", e);
+      throw new HttpsError('internal', 'An error occurred while generating the image.', e.message);
+    }
+  }
+);
+```
+
+**Firebase Function Wrapper:**
+The Genkit flow is wrapped in a callable Firebase Function, making it accessible to the frontend.
+
+```typescript
+// functions/src/index.ts
+export const generateImageFlow = onCallGenkit(
+  {
+    secrets: [GEMINI_API_KEY],
+    region: 'africa-south1',
+    cors: isEmulated ? true : [/^https:\/\/nano-studios(--[a-z0-9-]+)?\.web\.app$/],
+  },
+  _generateImageFlowLogic
+);
+```
+
+### 2. Frontend: Angular Services & Components
+
+**AI Service (`src/app/services/core/ai/ai.service.ts`):**
+This service calls the `generateImageFlow` Firebase Function.
+
+```typescript
+// src/app/services/core/ai/ai.service.ts
+import { httpsCallable } from '@angular/fire/functions';
+
+// ...
+
+export class AiService {
   // ...
-  
-  return `data:image/png;base64,${base64ImageResult}`;
-}
-```
-
-### 2. Authentication Service (`auth.service.ts`)
-Handles user authentication using Firebase, supporting sign-in with Google.
-
-```typescript
-// src/app/services/core/auth/auth.service.ts
-export class AuthService {
-  currentUser = signal<User | null>(null);
-  isAuthenticated = signal<boolean>(false);
-
-  constructor() {
-    onAuthStateChanged(this.auth, (user) => {
-      this.currentUser.set(user);
-      this.isAuthenticated.set(!!user);
-    });
-  }
-
-  signInWithGoogle(): Observable<User> {
-    const provider = new GoogleAuthProvider();
-    return from(signInWithPopup(this.auth, provider)).pipe(
-      switchMap(result => of(result.user))
-    );
-  }
-}
-```
-
-### 3. User Prompt Service (`user-prompt.service.ts`)
-Manages the user's prompt history, persisting data to Firestore.
-
-```typescript
-// src/app/services/user-prompt/user-prompt.service.ts
-export class UserPromptService {
-  prompts = signal<HistoryPrompt[]>([]);
-
-  constructor() {
-    toObservable(this.auth.currentUser).pipe(
-      switchMap((user) => {
-        if (!user) {
-          this.prompts.set([]);
-          return of<HistoryPrompt[]>([]);
-        }
-        const q = query(
-          collection(this.fs, 'historyPrompts'),
-          where('userId', '==', user.uid),
-          orderBy('createdAt', 'desc')
-        );
-        return collectionData(q, { idField: 'id' }) as Observable<HistoryPrompt[]>;
-      }),
+  async generateContent(prompt: string, base64Img: string): Promise<string> {
+    try {
+      const generateImage = httpsCallable<{ prompt: string, base64Img: string }, ImageGenerationOutput>(this.functions, 'generateImageFlow');
+      const response = await generateImage({ prompt, base64Img });
+      const base64ImageResult = response.data.base64ImageResult;
       // ...
-    ).subscribe();
-  }
-
-  async addPrompt(prompt: string): Promise<string> {
-    const userId = this.auth.getUserId();
-    if (!userId) throw new Error('Not authenticated');
-    const ref = await addDoc(collection(this.fs, 'historyPrompts'), {
-      userId,
-      prompt,
-      createdAt: serverTimestamp(),
-    });
-    return ref.id;
+      return `data:image/png;base64,${base64ImageResult}`;
+    }
+    // ...
   }
 }
 ```
 
-### 4. Frontend Integration (`home.ts` & `home.html`)
-The `Home` component ties these services together to provide a seamless user experience.
+**Home Component (`src/app/pages/home/home.ts`):**
+The `Home` component uses the `AiService` to trigger the image generation process.
 
-**Component Logic:**
 ```typescript
 // src/app/pages/home/home.ts
 export class Home {
   aiService = inject(AiService);
-  userPromptService = inject(UserPromptService);
-  authService = inject(AuthService);
+  // ...
 
   async generate(): Promise<void> {
-    const result = await this.aiService.generateContent(/* ... */);
-    this.resultUrl.set(result);
-    await this.userPromptService.addPrompt(/* ... */);
+    if (!this.canGenerate()) return;
+    this.loading.set(true);
+
+    this.aiService.generateContent(this.prompt(), this.base64Image()!)
+      .then(async res => {
+        this.resultUrl.set(res);
+        // ...
+      })
+      .catch(error => {
+        // ...
+      })
   }
 }
-```
-
-**Template:**
-```html
-<!-- src/app/pages/home/home.html -->
-<div class="result">
-  @if (hasResult()) {
-    <img [src]="resultUrl()!" alt="Generated image result" />
-  }
-</div>
-
-<ol class="history">
-  @for (item of history(); track item.timestamp) {
-    <li class="history__item">{{ item.prompt }}</li>
-  }
-</ol>
 ```
 
 ---
@@ -502,7 +460,7 @@ This project is built with Angular. If you’re setting it up locally:
 
 Notes
 - Large images may take longer to process
-- Prompt history shows your last 20 prompts and when they were generated
+- Prompt history shows your last 20 prompts and and when they were generated
 ---
 
 ## Notes on the model 🧩
