@@ -135,6 +135,31 @@ export class AiService {
 }
 ```
 
+**Authentication Service (`src/app/services/core/auth/auth.service.ts`):**
+Handles user authentication using Firebase, supporting sign-in with Google.
+
+```typescript
+// src/app/services/core/auth/auth.service.ts
+export class AuthService {
+  currentUser = signal<User | null>(null);
+  isAuthenticated = signal<boolean>(false);
+
+  constructor() {
+    onAuthStateChanged(this.auth, (user) => {
+      this.currentUser.set(user);
+      this.isAuthenticated.set(!!user);
+    });
+  }
+
+  signInWithGoogle(): Observable<User> {
+    const provider = new GoogleAuthProvider();
+    return from(signInWithPopup(this.auth, provider)).pipe(
+      switchMap(result => of(result.user))
+    );
+  }
+}
+```
+
 **Home Component (`src/app/pages/home/home.ts`):**
 The `Home` component uses the `AiService` to trigger the image generation process.
 
