@@ -430,19 +430,43 @@ Now you need to register a web app in Firebase and get the configuration:
 - Select "Start in test mode"
 - Click "Create"
 
+## 🔐 API Keys Setup
+
+### Step 9: Set Up API Keys as Firebase Secrets 🔑
+
+1. **Set Gemini API Key:**
+   ```bash
+   firebase functions:secrets:set GEMINI_API_KEY
+   ```
+   When prompted, paste your Gemini API key.
+
+   > **📝 How to get Gemini API Key:** Go to [Google AI Studio](https://aistudio.google.com/app/apikey), create an API key by attaching to a project, and copy it. The input is masked, so you won't see the pasted key, but it will be there. Just paste ONCE!
+
+2. **Create local environment file (for development):**
+   ```bash
+   echo "GEMINI_API_KEY=your_actual_gemini_api_key_here" > .env
+   cd ..
+   ```
+   Replace `your_actual_gemini_api_key_here` with your actual Gemini API key.
+
 
 ## 🚀 Deployment and Running
 
-### Step 9: Deploy and Run Your Application
+### Step 10: Deploy and Run Your Application
+1. **Deploy Firebase Functions:**
+   ```bash
+   firebase deploy --only functions
+   ```
+   This will deploy your backend functions to Firebase.
 
-1. **Run the application locally:**
+2. **Run the application locally:**
    ```bash
    cd ..
    ng serve
    ```
    Your app will be available at `http://localhost:4200`. However, on Firebase Studio, hold Ctrl+Click on the localhost URL to open it in a new tab.
 
-2. **Build for production (optional):**
+3. **Build for production (optional):**
    ```bash
    ng build
    firebase deploy --only hosting
