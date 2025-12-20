@@ -269,26 +269,20 @@ export class Home {
 - Set budget alert (e.g., $2 USD)
 - Click "Link Cloud Billing Account"
 
-### Step 2: Enable Required APIs for Firebase AI Logic ☁️
+### Step 2: Enable Required APIs ☁️
 
-Your Firebase project needs Gemini Developer API & Vertex AI Gemini API enabled. In your Firebase Project Dashboard:
-1. **Enable Gemini Developer API**
-- In the left sidebar, click 'AI'
-- Click on 'AI Logic'. This brings up the Firebase AI Logic dashboard view
-- Click on 'Get Started'
-- On the sidebar that appears, on the 'Gemini Developer API' option, click 'Get Started with this API'
-- When prompted with another pop-up, click 'Enable' and also enable AI Monitoring.
-- No need to add the Firebase AI Logic SDK as this is already done for you in the project. Click 'Continue'.
+Your Firebase project needs certain Google Cloud APIs enabled:
 
-NOTE: Enabling the Gemini Developer API will automatically generate for you the Gemini API Key that you need in executing AI actions in your project.
+1. **Go to Google Cloud Console:**
+  - Visit the [Google Cloud Console](https://console.cloud.google.com/)
+  - Make sure your Firebase project is selected in the project dropdown
+  - Click on "Dashboard" to see the project's overview page
+2. **Enable the Secret Manager API:**
+  - In the left sidebar, go to "APIs & Services" > "Library"
+  - Search for "Secret Manager API"
+  - Click on it and press "Enable"
 
-2. **Enable Vertex AI Gemini API**
-- Back in the Firebase AI Logic dashboard view, click on 'Settings'
-- You will notice that Vertex AI Gemini API is not enabled. For improved performance to our image editing needs, we will enable this API.
-- Click on 'Enable required APIs'
-- On the sidebar that appears, click 'Enable APIs'
-- AI Monitoring should have been already enabled when enabling the Gemini AI API.
-- Click 'Continue'.
+> **Note:** Other APIs (Cloud Functions, Vertex AI, etc.) are automatically enabled when you deploy Firebase Functions.
 
 ### Step 3: Install and Setup Firebase CLI 🛠️
 
