@@ -31,7 +31,8 @@
   position: relative;
 }
 
-.why-trigger {
+.why-trigger,
+.theme-toggle {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -43,27 +44,32 @@
   font: inherit;
   cursor: pointer;
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
-  &::after {
-    content: 'Why Nano Studio';
-  }
+}
 
-  @media screen and (max-width: 767.98px) {
+.why-trigger::after {
+  content: 'Why Nano Studio';
+}
+
+@media screen and (max-width: 767.98px) {
+  .why-trigger {
     font-size: 0.875rem;
-    &::after {
-      content: 'Why Nano Studio';
-      position: absolute;
-      width: 0;
-      height: 0;
-      overflow: hidden;
-    }
+  }
+  .why-trigger::after {
+    content: 'Why Nano Studio';
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
   }
 }
 
-.why-trigger:hover {
+.why-trigger:hover,
+.theme-toggle:hover {
   background: color-mix(in srgb, var(--surface, #fff) 92%, black 8%);
 }
 
-.why-trigger:focus-visible {
+.why-trigger:focus-visible,
+.theme-toggle:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #2563eb) 30%, transparent 70%);
   border-color: var(--primary, #2563eb);
