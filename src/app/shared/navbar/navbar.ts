@@ -1,35 +1,25 @@
-import { ChangeDetectionStrategy, Component, signal, effect, afterNextRender, Injector } from '@angular/core';
-import {NgOptimizedImage } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { UserAuth } from '../user-auth/user-auth';
+import { ThemeService } from '../../services/theme/theme.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [NgOptimizedImage, UserAuth],
+  imports: [CommonModule, NgOptimizedImage, UserAuth],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'navbar-host'
-  }
+  },
+  standalone: true,
 })
 export class Navbar {
   readonly whyOpen = signal(false);
-  readonly festiveTheme = signal(false);
-
-  constructor(private injector: Injector) {
-    afterNextRender(() => {
-      effect(() => {
-        if (this.festiveTheme()) {
-          document.body.classList.add('festive-theme');
-        } else {
-          document.body.classList.remove('festive-theme');
-        }
-      }, { injector: this.injector });
-    });
-  }
+  themeService = inject(ThemeService);
 
   toggleWhy(): void {
-    this.whyOpen.update((v) => !v);
+    this.whyOpen.update((v: boolean) => !v);
   }
 
   closeWhy(): void {
@@ -37,6 +27,6 @@ export class Navbar {
   }
 
   toggleFestiveTheme(): void {
-    this.festiveTheme.update((v) => !v);
+    this.themeService.toggleFestiveTheme();
   }
 }

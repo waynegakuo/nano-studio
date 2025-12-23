@@ -2,8 +2,8 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--surface, #fff);
-  border-bottom: 1px solid var(--border, #e5e7eb);
+  background: var(--color-navbar-background);
+  border-bottom: 1px solid var(--color-navbar-border);
 }
 
 .navbar__inner {
@@ -39,7 +39,7 @@
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border, #e5e7eb);
-  background: var(--surface, #fff);
+  background: inherit;
   color: var(--text, #111827);
   font: inherit;
   cursor: pointer;
@@ -71,8 +71,8 @@
 .why-trigger:focus-visible,
 .theme-toggle:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #2563eb) 30%, transparent 70%);
-  border-color: var(--primary, #2563eb);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #2563eb) 30%, transparent 70%);
+  border-color: var(--color-primary, #2563eb);
 }
 
 .why-icon {

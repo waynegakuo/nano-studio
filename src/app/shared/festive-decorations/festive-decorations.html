@@ -1,0 +1,10 @@
+<div class="snow">
+  @for (flake of snowflakes; track $index) {
+    <div class="snowflake" [ngStyle]="{
+      'left': flake.left,
+      'animation-duration': flake.animationDuration,
+      'animation-delay': flake.animationDelay,
+      'font-size': flake.fontSize
+    }">❄️</div>
+  }
+</div>

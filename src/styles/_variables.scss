@@ -68,4 +68,8 @@
   --container-md: #{$container-md};
   --container-lg: #{$container-lg};
   --container-xl: #{$container-xl};
+
+  /* Component-specific */
+  --color-navbar-background: var(--color-white);
+  --color-navbar-border: #e5e7eb;
 }

@@ -11,14 +11,19 @@
 @use 'styles/components' as *;
 @use 'styles/helpers' as *;
 @use 'styles/festive' as festive;
+@use 'styles/animations' as *;
 
 body.festive-theme {
   --color-primary: #{festive.$festive-color-primary};
   --color-secondary: #{festive.$festive-color-secondary};
   --color-accent: #{festive.$festive-color-accent};
-  --color-body: #{festive.$festive-color-body};
+  --color-body: #{festive.$festive-color-surface};
   --color-surface: #{festive.$festive-color-surface};
   --font-ui: #{festive.$festive-font-ui};
   --radius-lg: #{festive.$festive-radius-lg};
   --shadow-md: #{festive.$festive-shadow-md};
+
+  /* Component-specific overrides */
+  --color-navbar-background: #{festive.$festive-color-surface};
+  --color-navbar-border: #{festive.$festive-color-accent};
 }
