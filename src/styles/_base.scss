@@ -13,6 +13,7 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease, font-weight 0.3s ease, font-size 0.3s ease, line-height 0.3s ease;
 }
 
 img, svg, video, canvas { display: block; max-width: 100%; }
