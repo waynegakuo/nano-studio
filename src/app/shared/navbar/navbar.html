@@ -61,6 +61,13 @@
           </ul>
         </div>
       </div>
+      <button type="button" class="theme-toggle" (click)="toggleFestiveTheme()">
+        @if (themeService.festiveTheme()) {
+          <span>🎉</span>
+        } @else {
+          <span>🎄</span>
+        }
+      </button>
     </nav>
   </div>
 </header>

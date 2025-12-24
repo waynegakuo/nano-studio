@@ -1,0 +1,26 @@
+@keyframes fall {
+  0% {
+    transform: translateY(-100vh) translateX(-5vw);
+  }
+  100% {
+    transform: translateY(100vh) translateX(5vw);
+  }
+}
+
+.snow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.snowflake {
+  position: absolute;
+  top: -20px;
+  color: var(--color-accent, #ffd700);
+  font-size: 1rem;
+  animation: fall linear infinite;
+}

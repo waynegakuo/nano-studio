@@ -9,6 +9,7 @@ import {AuthService} from '../../services/core/auth/auth.service';
 import {Analytics, logEvent} from '@angular/fire/analytics';
 import {UserDataService} from '../../services/core/user-data/user-data.service';
 import { SeoService } from '../../services/core/seo/seo.service';
+import { ThemeService } from '../../services/theme/theme.service';
 
 
 
@@ -49,6 +50,7 @@ export class Home {
   // Auth state
   public authService = inject(AuthService);
   public userDataService = inject(UserDataService);
+  public themeService = inject(ThemeService);
 
   readonly isAuthed = computed(() => this.authService.isAuthenticated());
 

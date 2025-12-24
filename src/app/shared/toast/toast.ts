@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ErrorService } from '../../services/core/error/error.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-toast',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './toast.html',
   styleUrl: './toast.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -12,7 +13,8 @@ import { ErrorService } from '../../services/core/error/error.service';
     role: 'region',
     'aria-live': 'polite',
     'aria-atomic': 'true'
-  }
+  },
+  standalone: true,
 })
 export class ToastComponent {
   private readonly errorService = inject(ErrorService);
