@@ -4,7 +4,7 @@ import { Injectable, signal, effect, afterNextRender, Injector } from '@angular/
   providedIn: 'root'
 })
 export class ThemeService {
-  readonly festiveTheme = signal(false);
+  readonly festiveTheme = signal(true);
 
   constructor(private injector: Injector) {
     afterNextRender(() => {
