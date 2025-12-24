@@ -4,9 +4,16 @@ import { Injectable, signal, effect, afterNextRender, Injector } from '@angular/
   providedIn: 'root'
 })
 export class ThemeService {
-  readonly festiveTheme = signal(true);
+  readonly festiveTheme = signal(false);
 
   constructor(private injector: Injector) {
+    const today = new Date();
+    const month = today.getMonth();
+    const day = today.getDate();
+    // Show from Dec 1st to Jan 5th
+    const isFestive = (month === 11 && day >= 1) || (month === 0 && day <= 5);
+    this.festiveTheme.set(isFestive);
+
     afterNextRender(() => {
       effect(() => {
         if (this.festiveTheme()) {
