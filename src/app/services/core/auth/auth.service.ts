@@ -1,6 +1,7 @@
-import {EnvironmentInjector, inject, Injectable, runInInjectionContext, signal} from '@angular/core';
+import {EnvironmentInjector, inject, Injectable, PLATFORM_ID, runInInjectionContext, signal} from '@angular/core';
 import {Auth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, User} from '@angular/fire/auth';
 import {from, Observable, of, switchMap} from 'rxjs';
+import {isPlatformBrowser} from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ export class AuthService {
   isLoading = signal<boolean>(true);
 
   private environmentInjector = inject(EnvironmentInjector);
+  private platformId = inject(PLATFORM_ID);
 
 
   constructor() {
@@ -30,6 +32,11 @@ export class AuthService {
    * Initializes the authentication state listener
    */
   public initAuthState(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      // Keep isLoading as true on the server to prevent the Sign In button from flashing
+      // while the client-side auth state is being determined.
+      return;
+    }
     return runInInjectionContext(this.environmentInjector, () => {
       onAuthStateChanged(this.auth, (user) => {
         this.currentUser.set(user);
