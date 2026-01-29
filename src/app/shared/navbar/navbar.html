@@ -10,6 +10,7 @@
     </a>
 
     <nav class="navbar__nav" aria-label="Main navigation">
+
       <app-user-auth></app-user-auth>
       <div class="why-menu" [class.open]="whyOpen()">
         <button
@@ -61,13 +62,19 @@
           </ul>
         </div>
       </div>
-      <button type="button" class="theme-toggle" (click)="toggleFestiveTheme()">
-        @if (themeService.festiveTheme()) {
-          <span>🎉</span>
-        } @else {
-          <span>🎄</span>
-        }
-      </button>
+      @if (false) {
+        <button type="button" class="theme-toggle" (click)="toggleFestiveTheme()">
+          @if (themeService.festiveTheme()) {
+            <span>🎉</span>
+          } @else {
+            <span>🎄</span>
+          }
+        </button>
+      }
+      <a href="https://www.buymeacoffee.com/waynegakuo" target="_blank" rel="noopener" class="bmc-button">
+        <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee" />
+        <span>Buy me a coffee</span>
+      </a>
     </nav>
   </div>
 </header>
