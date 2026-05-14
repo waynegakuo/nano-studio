@@ -10,6 +10,8 @@ import {Analytics, logEvent} from '@angular/fire/analytics';
 import {UserDataService} from '../../services/core/user-data/user-data.service';
 import { SeoService } from '../../services/core/seo/seo.service';
 import { ThemeService } from '../../services/theme/theme.service';
+import { ErrorService } from '../../services/core/error/error.service';
+import { mapToFriendlyError } from '../../services/core/error/error-mapper';
 
 
 
@@ -51,6 +53,7 @@ export class Home {
   public authService = inject(AuthService);
   public userDataService = inject(UserDataService);
   public themeService = inject(ThemeService);
+  private readonly errorService = inject(ErrorService);
 
   readonly isAuthed = computed(() => this.authService.isAuthenticated());
 
@@ -138,7 +141,7 @@ export class Home {
     const isValid = type === 'image/jpeg' || type === 'image/png' || type === 'image/jpg';
     if (!isValid) {
       this.clearFile();
-      alert('Please upload a JPG or PNG image.');
+      this.errorService.showWarning('Please upload a JPG or PNG image.');
       return;
     }
     const reader = new FileReader();
@@ -201,6 +204,7 @@ export class Home {
         // Stop message cycling on error as well
         this.loadingMessagesService.stopCycling();
         this.loading.set(false);
+        this.errorService.showError(mapToFriendlyError(error));
         console.error('Generation failed:', error);
       })
   }
@@ -283,6 +287,7 @@ export class Home {
       await this.userPromptService.clearAllForCurrentUser();
       this.activeHistoryItem.set(null);
     } catch (e) {
+      this.errorService.showError('Failed to clear history. Please try again.');
       console.error('Failed to clear history:', e);
     }
   }

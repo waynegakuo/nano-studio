@@ -40,7 +40,13 @@
 .grid {
   display: grid;
   gap: var(--space-6);
+  grid-template-columns: 1fr;
 }
+
+@media (min-width: 48rem) {
+  .grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+}
+
 @media (min-width: 64rem) {
   .grid { grid-template-columns: 1fr 1fr; }
 }
@@ -58,7 +64,7 @@
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-3);
-  background: color-mix(in oklab, var(--color-white), black 6%);
+  background: color-mix(in oklab, var(--color-body), black 6%);
 }
 .upload .preview img {
   width: 100%;
@@ -87,10 +93,11 @@
   background: transparent;
   color: var(--color-black);
   cursor: pointer;
+  transition: all 0.2s ease;
 }
-.chip:hover { background: color-mix(in oklab, var(--color-elevated), black 6%); color: var(--color-white); }
+.chip:hover { background: var(--color-elevated); color: var(--color-white); }
 .chip--active {
-  background: color-mix(in oklab, var(--color-primary), black 10%);
+  background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-white);
 }
@@ -103,14 +110,49 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-3);
-  background: color-mix(in oklab, var(--color-white), black 6%);
-  margin-bottom: 2rem;
+  background: color-mix(in oklab, var(--color-body), black 6%);
+  margin-bottom: var(--space-8);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .result img {
   width: 100%;
-  max-height: 360px;
+  max-height: 480px;
   object-fit: contain;
   border-radius: var(--radius-sm);
+}
+
+// Skeleton styles
+.skeleton-result {
+  width: 100%;
+  height: 300px;
+  background: color-mix(in oklab, var(--color-body), black 10%);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-4);
+}
+
+.skeleton-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .history {
