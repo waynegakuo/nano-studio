@@ -18,6 +18,7 @@
   --color-white: #{$color-white};
   --color-black: #{$color-black};
   --color-gradient-text: #{$color-gradient};
+  --color-card: var(--color-white);
 
   /* Typography */
   --font-ui: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial,

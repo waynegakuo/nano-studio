@@ -38,10 +38,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border, #e5e7eb);
-  background: inherit;
-  color: var(--text, #111827);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-black);
   font: inherit;
   cursor: pointer;
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
@@ -53,7 +53,7 @@
 
 @media screen and (max-width: 767.98px) {
   .why-trigger {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
   }
   .why-trigger::after {
     content: 'Why Nano Studio';
@@ -66,14 +66,15 @@
 
 .why-trigger:hover,
 .theme-toggle:hover {
-  background: color-mix(in srgb, var(--surface, #fff) 92%, black 8%);
+  background: var(--color-elevated);
+  color: var(--color-white);
 }
 
 .why-trigger:focus-visible,
 .theme-toggle:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #2563eb) 30%, transparent 70%);
-  border-color: var(--color-primary, #2563eb);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 30%, transparent 70%);
+  border-color: var(--color-primary);
 }
 
 .why-icon {
@@ -85,51 +86,53 @@
   right: 0;
   top: calc(100% + 8px);
   width: min(520px, 90vw);
-  background: var(--surface, #fff);
-  color: var(--text, #111827);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  padding: 1rem;
+  background: var(--color-white);
+  color: var(--color-black);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4);
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-4px);
   pointer-events: none;
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
 }
 
 /* Use presence + class on parent for animation without keeping hidden node focusable */
 .why-menu.open .why-popup {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
 }
 
 .why-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-  font-weight: 700;
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--text-md);
+  font-weight: var(--fw-bold);
 }
 
 .why-intro {
-  margin: 0 0 0.5rem 0.25rem;
+  margin: 0 0 var(--space-2) var(--space-1);
   font-size: 0.9rem;
-  line-height: 1.4;
+  line-height: var(--leading-normal);
 }
 
 .why-list {
   list-style: none;
   margin: 0;
-  padding: 0.25rem 0 0 0;
+  padding: var(--space-1) 0 0 0;
   display: grid;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .why-list li {
   display: grid;
   grid-template-columns: 1.25rem 1fr;
   align-items: start;
-  gap: 0.5rem;
-  padding: 0.25rem 0.25rem;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-1);
 }
 
 .bullet {
