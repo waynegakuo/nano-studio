@@ -76,10 +76,12 @@ export class Home {
       const timestamp = created && typeof (created as { toMillis: () => number }).toMillis === 'function'
         ? (created as { toMillis: () => number }).toMillis()
         : Date.now();
-      return { prompt: it.prompt, timestamp };
+      return { prompt: it.prompt, timestamp, imageBase64: it.imageBase64 };
     });
   });
   readonly activeHistoryItem = signal<PromptHistoryItem | null>(null);
+  readonly viewingHistory = signal<boolean>(false);
+  readonly historyImageBase64 = signal<string | null>(null);
 
   readonly remainingGenerations = computed(() => {
     const user = this.authService.currentUser();
@@ -172,6 +174,10 @@ export class Home {
     if (!this.canGenerate()) return;
     this.loading.set(true);
     this.resultUrl.set(null);
+    // Clear history view so the new result is shown
+    this.viewingHistory.set(false);
+    this.historyImageBase64.set(null);
+    this.activeHistoryItem.set(null);
 
     // Start cycling through loading messages every second
     this.loadingMessagesService.startCycling();
@@ -192,7 +198,7 @@ export class Home {
 
         // Persist prompt to user history via service
         try {
-          await this.userPromptService.addPrompt(currentPrompt);
+          await this.userPromptService.addPrompt(currentPrompt, res ?? undefined);
         } catch (e) {
           console.error('Failed to save prompt history:', e);
         }
@@ -276,12 +282,23 @@ export class Home {
     this.activeHistoryItem.set(item);
     // Clear any previously selected preset since history item is now active
     this.selectedPreset.set(null);
+    // Show the stored image if available
+    this.historyImageBase64.set(item.imageBase64 ?? null);
+    this.viewingHistory.set(true);
+  }
+
+  onDismissHistoryView(): void {
+    this.viewingHistory.set(false);
+    this.historyImageBase64.set(null);
+    this.activeHistoryItem.set(null);
   }
 
   async onClearHistory(): Promise<void> {
     try {
       await this.userPromptService.clearAllForCurrentUser();
       this.activeHistoryItem.set(null);
+      this.viewingHistory.set(false);
+      this.historyImageBase64.set(null);
     } catch (e) {
       console.error('Failed to clear history:', e);
     }

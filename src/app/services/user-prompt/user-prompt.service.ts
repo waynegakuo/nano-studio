@@ -102,13 +102,14 @@ export class UserPromptService {
    * @returns A promise that resolves with the ID of the newly added prompt.
    * @throws If the user is not authenticated.
    */
-  async addPrompt(prompt: string): Promise<HistoryPromptId> {
+  async addPrompt(prompt: string, imageBase64?: string): Promise<HistoryPromptId> {
     const userId = this.auth.getUserId();
     if (!userId) throw new Error('Not authenticated');
 
     const data: NewHistoryPrompt = {
       userId,
       prompt,
+      ...(imageBase64 ? { imageBase64 } : {}),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };

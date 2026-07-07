@@ -3,12 +3,14 @@ import {serverTimestamp, Timestamp} from '@angular/fire/firestore';
 export interface PromptHistoryItem {
   prompt: string;
   timestamp: number;
+  imageBase64?: string;
   resultUrl?: string;
 }
 
 export interface HistoryPromptBase {
   userId: string;
   prompt: string;
+  imageBase64?: string;
   // When created on the client we submit serverTimestamp(); when reading it's a Timestamp
   createdAt: Timestamp | null;
   updatedAt: Timestamp | null;
