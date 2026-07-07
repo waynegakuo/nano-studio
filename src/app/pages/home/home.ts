@@ -215,6 +215,7 @@ export class Home {
     const url = this.resultUrl();
     if (!url) return;
 
+    const fileName = `nano_${Date.now().toString(36)}.png`;
     const anchor = event.currentTarget as HTMLAnchorElement | null;
     const isDataUrl = url.startsWith('data:');
     const isIOS = typeof navigator !== 'undefined' && /iP(hone|od|ad)/.test(navigator.userAgent);
@@ -232,7 +233,7 @@ export class Home {
         };
 
         if (blob && nav.share) {
-          const file = new File([blob], 'nano-generated.png', { type: blob.type || 'image/png' });
+          const file = new File([blob], fileName, { type: blob.type || 'image/png' });
           const shareData: ShareData = { files: [file], title: 'Nano Studio', text: 'Generated image' };
           const canShareFiles = typeof nav.canShare === 'function' ? nav.canShare(shareData) : true;
           if (canShareFiles) {
@@ -264,7 +265,7 @@ export class Home {
         const blob = this.dataUrlToBlob(url);
         const blobUrl = URL.createObjectURL(blob);
         anchor.href = blobUrl;
-        anchor.download = 'nano-generated.png';
+        anchor.download = fileName;
         // Let the native click continue; revoke after some time
         setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
         logEvent(this.fireAnalytics, 'image_downloaded');
@@ -291,6 +292,7 @@ export class Home {
     const url = this.historyImageBase64();
     if (!url) return;
 
+    const fileName = `nano_${Date.now().toString(36)}.png`;
     const anchor = event.currentTarget as HTMLAnchorElement | null;
     const isIOS = typeof navigator !== 'undefined' && /iP(hone|od|ad)/.test(navigator.userAgent);
 
@@ -303,7 +305,7 @@ export class Home {
           canShare?: (data?: ShareData) => boolean;
         };
         if (blob && nav.share) {
-          const file = new File([blob], 'nano-history.png', { type: blob.type || 'image/png' });
+          const file = new File([blob], fileName, { type: blob.type || 'image/png' });
           const shareData: ShareData = { files: [file], title: 'Nano Studio', text: 'Historical image' };
           const canShareFiles = typeof nav.canShare === 'function' ? nav.canShare(shareData) : true;
           if (canShareFiles) {
@@ -330,7 +332,7 @@ export class Home {
         const blob = this.dataUrlToBlob(url);
         const blobUrl = URL.createObjectURL(blob);
         anchor.href = blobUrl;
-        anchor.download = 'nano-history.png';
+        anchor.download = fileName;
         setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
         logEvent(this.fireAnalytics, 'history_image_downloaded');
       } catch {
