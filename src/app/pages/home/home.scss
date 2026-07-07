@@ -113,6 +113,53 @@
   border-radius: var(--radius-sm);
 }
 
+.result--history {
+  border-color: var(--color-primary);
+}
+
+.history-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--color-primary), transparent 85%);
+  border: 1px solid color-mix(in oklab, var(--color-primary), transparent 60%);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+
+  &__icon {
+    font-size: var(--text-md);
+    flex-shrink: 0;
+  }
+
+  &__text {
+    flex: 1;
+    font-size: var(--text-sm);
+    color: var(--color-elevated);
+    min-width: 0;
+  }
+
+  &__dismiss {
+    flex-shrink: 0;
+    font-size: var(--text-sm);
+    padding: var(--space-1) var(--space-3);
+    border-color: color-mix(in oklab, var(--color-primary), transparent 40%);
+    color: var(--color-primary);
+    background: color-mix(in oklab, var(--color-primary), transparent 90%);
+
+    &:hover {
+      background: color-mix(in oklab, var(--color-primary), transparent 75%);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary), white 60%);
+    }
+  }
+}
+
 .history {
   list-style: none;
   margin: 0;

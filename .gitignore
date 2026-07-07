@@ -43,3 +43,6 @@ Thumbs.db
 
 # Setup Documentation
 /documentation
+
+# Junie Files
+/.junie/memory

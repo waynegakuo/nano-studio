@@ -76,10 +76,12 @@ export class Home {
       const timestamp = created && typeof (created as { toMillis: () => number }).toMillis === 'function'
         ? (created as { toMillis: () => number }).toMillis()
         : Date.now();
-      return { prompt: it.prompt, timestamp };
+      return { prompt: it.prompt, timestamp, imageBase64: it.imageBase64 };
     });
   });
   readonly activeHistoryItem = signal<PromptHistoryItem | null>(null);
+  readonly viewingHistory = signal<boolean>(false);
+  readonly historyImageBase64 = signal<string | null>(null);
 
   readonly remainingGenerations = computed(() => {
     const user = this.authService.currentUser();
@@ -172,6 +174,10 @@ export class Home {
     if (!this.canGenerate()) return;
     this.loading.set(true);
     this.resultUrl.set(null);
+    // Clear history view so the new result is shown
+    this.viewingHistory.set(false);
+    this.historyImageBase64.set(null);
+    this.activeHistoryItem.set(null);
 
     // Start cycling through loading messages every second
     this.loadingMessagesService.startCycling();
@@ -192,7 +198,7 @@ export class Home {
 
         // Persist prompt to user history via service
         try {
-          await this.userPromptService.addPrompt(currentPrompt);
+          await this.userPromptService.addPrompt(currentPrompt, res ?? undefined);
         } catch (e) {
           console.error('Failed to save prompt history:', e);
         }
@@ -209,6 +215,7 @@ export class Home {
     const url = this.resultUrl();
     if (!url) return;
 
+    const fileName = `nano_${Date.now().toString(36)}.png`;
     const anchor = event.currentTarget as HTMLAnchorElement | null;
     const isDataUrl = url.startsWith('data:');
     const isIOS = typeof navigator !== 'undefined' && /iP(hone|od|ad)/.test(navigator.userAgent);
@@ -226,7 +233,7 @@ export class Home {
         };
 
         if (blob && nav.share) {
-          const file = new File([blob], 'nano-generated.png', { type: blob.type || 'image/png' });
+          const file = new File([blob], fileName, { type: blob.type || 'image/png' });
           const shareData: ShareData = { files: [file], title: 'Nano Studio', text: 'Generated image' };
           const canShareFiles = typeof nav.canShare === 'function' ? nav.canShare(shareData) : true;
           if (canShareFiles) {
@@ -258,7 +265,7 @@ export class Home {
         const blob = this.dataUrlToBlob(url);
         const blobUrl = URL.createObjectURL(blob);
         anchor.href = blobUrl;
-        anchor.download = 'nano-generated.png';
+        anchor.download = fileName;
         // Let the native click continue; revoke after some time
         setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
         logEvent(this.fireAnalytics, 'image_downloaded');
@@ -276,12 +283,76 @@ export class Home {
     this.activeHistoryItem.set(item);
     // Clear any previously selected preset since history item is now active
     this.selectedPreset.set(null);
+    // Show the stored image if available
+    this.historyImageBase64.set(item.imageBase64 ?? null);
+    this.viewingHistory.set(true);
+  }
+
+  downloadHistoryImage(event: Event): void {
+    const url = this.historyImageBase64();
+    if (!url) return;
+
+    const fileName = `nano_${Date.now().toString(36)}.png`;
+    const anchor = event.currentTarget as HTMLAnchorElement | null;
+    const isIOS = typeof navigator !== 'undefined' && /iP(hone|od|ad)/.test(navigator.userAgent);
+
+    if (isIOS) {
+      event.preventDefault();
+      try {
+        const blob = this.dataUrlToBlob(url);
+        const nav = navigator as Navigator & {
+          share?: (data: ShareData) => Promise<void>;
+          canShare?: (data?: ShareData) => boolean;
+        };
+        if (blob && nav.share) {
+          const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+          const shareData: ShareData = { files: [file], title: 'Nano Studio', text: 'Historical image' };
+          const canShareFiles = typeof nav.canShare === 'function' ? nav.canShare(shareData) : true;
+          if (canShareFiles) {
+            nav.share(shareData).catch(() => {
+              const blobUrl = URL.createObjectURL(blob);
+              window.open(blobUrl, '_blank');
+              setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+            });
+            return;
+          }
+        }
+        const openUrl = blob ? URL.createObjectURL(blob) : url;
+        window.open(openUrl, '_blank');
+        if (blob) setTimeout(() => URL.revokeObjectURL(openUrl), 30000);
+        logEvent(this.fireAnalytics, 'history_image_downloaded');
+      } catch {
+        window.open(url, '_blank');
+      }
+      return;
+    }
+
+    if (anchor) {
+      try {
+        const blob = this.dataUrlToBlob(url);
+        const blobUrl = URL.createObjectURL(blob);
+        anchor.href = blobUrl;
+        anchor.download = fileName;
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+        logEvent(this.fireAnalytics, 'history_image_downloaded');
+      } catch {
+        anchor.href = url;
+      }
+    }
+  }
+
+  onDismissHistoryView(): void {
+    this.viewingHistory.set(false);
+    this.historyImageBase64.set(null);
+    this.activeHistoryItem.set(null);
   }
 
   async onClearHistory(): Promise<void> {
     try {
       await this.userPromptService.clearAllForCurrentUser();
       this.activeHistoryItem.set(null);
+      this.viewingHistory.set(false);
+      this.historyImageBase64.set(null);
     } catch (e) {
       console.error('Failed to clear history:', e);
     }
