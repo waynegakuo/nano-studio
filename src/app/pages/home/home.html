@@ -88,12 +88,21 @@
         <div class="history-banner" role="status" aria-live="polite">
           <span class="history-banner__icon" aria-hidden="true">🕓</span>
           <span class="history-banner__text">Viewing history — <b>{{ (activeHistoryItem()?.prompt ?? '') | truncateText: 40 }}</b></span>
-          <button type="button" class="btn btn-link text-sm history-banner__dismiss" (click)="onDismissHistoryView()">Dismiss</button>
+          <button type="button" class="btn btn-outline history-banner__dismiss" (click)="onDismissHistoryView()">Dismiss</button>
         </div>
 
         @if (historyImageBase64()) {
           <div class="result result--history">
             <img [src]="historyImageBase64()!" alt="Stored result for historical prompt" />
+          </div>
+          <div class="section">
+            <a
+              class="btn btn-secondary"
+              [href]="historyImageBase64()!"
+              download="nano-history.png"
+              (click)="downloadHistoryImage($event)"
+              rel="noopener"
+            >Download image</a>
           </div>
         } @else {
           <p class="text-sm text-muted">No image was stored for this prompt.</p>

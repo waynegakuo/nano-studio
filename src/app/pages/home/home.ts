@@ -287,6 +287,58 @@ export class Home {
     this.viewingHistory.set(true);
   }
 
+  downloadHistoryImage(event: Event): void {
+    const url = this.historyImageBase64();
+    if (!url) return;
+
+    const anchor = event.currentTarget as HTMLAnchorElement | null;
+    const isIOS = typeof navigator !== 'undefined' && /iP(hone|od|ad)/.test(navigator.userAgent);
+
+    if (isIOS) {
+      event.preventDefault();
+      try {
+        const blob = this.dataUrlToBlob(url);
+        const nav = navigator as Navigator & {
+          share?: (data: ShareData) => Promise<void>;
+          canShare?: (data?: ShareData) => boolean;
+        };
+        if (blob && nav.share) {
+          const file = new File([blob], 'nano-history.png', { type: blob.type || 'image/png' });
+          const shareData: ShareData = { files: [file], title: 'Nano Studio', text: 'Historical image' };
+          const canShareFiles = typeof nav.canShare === 'function' ? nav.canShare(shareData) : true;
+          if (canShareFiles) {
+            nav.share(shareData).catch(() => {
+              const blobUrl = URL.createObjectURL(blob);
+              window.open(blobUrl, '_blank');
+              setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+            });
+            return;
+          }
+        }
+        const openUrl = blob ? URL.createObjectURL(blob) : url;
+        window.open(openUrl, '_blank');
+        if (blob) setTimeout(() => URL.revokeObjectURL(openUrl), 30000);
+        logEvent(this.fireAnalytics, 'history_image_downloaded');
+      } catch {
+        window.open(url, '_blank');
+      }
+      return;
+    }
+
+    if (anchor) {
+      try {
+        const blob = this.dataUrlToBlob(url);
+        const blobUrl = URL.createObjectURL(blob);
+        anchor.href = blobUrl;
+        anchor.download = 'nano-history.png';
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+        logEvent(this.fireAnalytics, 'history_image_downloaded');
+      } catch {
+        anchor.href = url;
+      }
+    }
+  }
+
   onDismissHistoryView(): void {
     this.viewingHistory.set(false);
     this.historyImageBase64.set(null);
