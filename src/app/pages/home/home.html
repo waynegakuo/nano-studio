@@ -14,19 +14,30 @@
     <div class="card">
       <h2 class="text-xl fw-semibold">Your product</h2>
       <div class="upload" role="group" aria-labelledby="upload-label" aria-describedby="upload-help">
-        <label id="upload-label" class="fw-semibold">Upload photo (JPG or PNG)</label>
+        <label id="upload-label" class="fw-semibold">Upload photos (JPG or PNG)</label>
         <input
           #fileInput
           type="file"
           class="input"
           accept="image/png,image/jpeg"
+          multiple
           (change)="onFileChange(fileInput.files)"
         />
-        <p id="upload-help" class="text-sm text-muted">Best results with clear, well-lit product images.</p>
+        <p id="upload-help" class="text-sm text-muted">Upload one or more product images. Best results with clear, well-lit photos.</p>
 
-        @if (filePreviewUrl()) {
-          <div class="preview">
-            <img [src]="filePreviewUrl()!" alt="Uploaded product preview" />
+        @if (filePreviewUrls().length > 0) {
+          <div class="preview-list">
+            @for (url of filePreviewUrls(); track url; let i = $index) {
+              <div class="preview-list__item">
+                <img [src]="url" [alt]="'Uploaded product preview ' + (i + 1)" />
+                <button
+                  type="button"
+                  class="preview-list__remove"
+                  [attr.aria-label]="'Remove image ' + (i + 1)"
+                  (click)="removeFile(i)"
+                >&#x2715;</button>
+              </div>
+            }
           </div>
         }
       </div>
