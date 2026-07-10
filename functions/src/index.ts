@@ -35,7 +35,7 @@ const ai = genkit({
 
 const ImageGenerationInputSchema = z.object({
   prompt: z.string().describe('The prompt for the image generation'),
-  base64Img: z.string().describe('The base64 encoded image data'),
+  base64Images: z.array(z.string()).min(1).describe('The base64 encoded image data for one or more images'),
 })
 
 const ImageGenerationOutputSchema = z.object({
@@ -48,13 +48,14 @@ export const _generateImageFlowLogic = ai.defineFlow(
     inputSchema: ImageGenerationInputSchema,
     outputSchema: ImageGenerationOutputSchema,
   },
-  async({ prompt, base64Img }) => {
+  async({ prompt, base64Images }) => {
     const payloadText = SYSTEM_PROMPT(prompt);
 
     try {
-      // Generate image using the AI model
+      // Generate image using the AI model — include all uploaded images
+      const mediaParts = base64Images.map(img => ({ media: { url: `data:image/jpeg;base64,${img}` } }));
       const response = await ai.generate([
-        {media: { url: `data:image/jpeg;base64,${base64Img}`}},
+        ...mediaParts,
         {text: payloadText}
       ]);
 

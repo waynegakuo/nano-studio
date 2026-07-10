@@ -56,10 +56,10 @@ export class Home {
 
   // User input state
   readonly prompt = signal<string>('');
-  readonly file = signal<File | null>(null);
-  readonly filePreviewUrl = signal<string | null>(null);
+  readonly files = signal<File[]>([]);
+  readonly filePreviewUrls = signal<string[]>([]);
 
-  base64Image= signal<string | null>(null);
+  readonly base64Images = signal<string[]>([]);
 
   // Generation state
   readonly loading = signal<boolean>(false);
@@ -86,7 +86,7 @@ export class Home {
   readonly remainingGenerations = computed(() => {
     const user = this.authService.currentUser();
     // Set quota based on user type
-    const quota = (user && !user.isAnonymous) ? 8 : 2;
+    const quota = (user && !user.isAnonymous) ? 10 : 5;
     // Read the reactive `generations` signal from the service
     const usedGenerations = this.userDataService.generations();
     const remaining = quota - usedGenerations;
@@ -94,7 +94,7 @@ export class Home {
     return Math.max(0, remaining);
   });
 
-  readonly canGenerate = computed(() => !!this.base64Image() && this.prompt().trim().length > 0 && !this.loading() && this.userDataService.canGenerateImage(this.authService.currentUser()));
+  readonly canGenerate = computed(() => this.base64Images().length > 0 && this.prompt().trim().length > 0 && !this.loading() && this.userDataService.canGenerateImage(this.authService.currentUser()));
   readonly hasResult = computed(() => this.resultUrl() !== null);
 
   aiService = inject(AiService);
@@ -131,43 +131,72 @@ export class Home {
   }
 
   onFileChange(fileList: FileList | null): void {
-    const file = fileList && fileList.length ? fileList.item(0) : null;
-    if (!file) {
-      this.clearFile();
+    if (!fileList || fileList.length === 0) {
+      this.clearFiles();
       return;
     }
-    const type = file.type.toLowerCase();
-    const isValid = type === 'image/jpeg' || type === 'image/png' || type === 'image/jpg';
-    if (!isValid) {
-      this.clearFile();
-      alert('Please upload a JPG or PNG image.');
+
+    const validFiles: File[] = [];
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList.item(i)!;
+      const type = file.type.toLowerCase();
+      const isValid = type === 'image/jpeg' || type === 'image/png' || type === 'image/jpg';
+      if (!isValid) {
+        alert(`"${file.name}" is not a JPG or PNG image and was skipped.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) {
+      this.clearFiles();
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      // Extract the base64 data part (after 'data:image/jpeg;base64,')
-      const dataPart = base64.split(',')[1];
-      this.base64Image.set(dataPart)
-    }
 
-    reader.readAsDataURL(file);
+    this.clearFiles();
+    this.files.set(validFiles);
 
-    // Create preview URL (SSR-safe)
+    // Create preview URLs (SSR-safe)
     if (typeof window !== 'undefined' && 'URL' in window) {
-      const url = URL.createObjectURL(file);
-      this.filePreviewUrl.set(url);
+      this.filePreviewUrls.set(validFiles.map(f => URL.createObjectURL(f)));
     }
+
+    // Read all files as base64
+    const base64Results: string[] = new Array(validFiles.length).fill('');
+    let loaded = 0;
+    validFiles.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        base64Results[index] = base64.split(',')[1];
+        loaded++;
+        if (loaded === validFiles.length) {
+          this.base64Images.set([...base64Results]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
-  private clearFile(): void {
-    // Revoke previous URL
-    const current = this.filePreviewUrl();
-    if (typeof window !== 'undefined' && current) {
-      try { URL.revokeObjectURL(current); } catch { /* noop */ }
+  removeFile(index: number): void {
+    const urls = this.filePreviewUrls();
+    if (typeof window !== 'undefined' && urls[index]) {
+      try { URL.revokeObjectURL(urls[index]); } catch { /* noop */ }
     }
-    this.file.set(null);
-    this.filePreviewUrl.set(null);
+    this.files.update(f => f.filter((_, i) => i !== index));
+    this.filePreviewUrls.update(u => u.filter((_, i) => i !== index));
+    this.base64Images.update(b => b.filter((_, i) => i !== index));
+  }
+
+  private clearFiles(): void {
+    if (typeof window !== 'undefined') {
+      this.filePreviewUrls().forEach(url => {
+        try { URL.revokeObjectURL(url); } catch { /* noop */ }
+      });
+    }
+    this.files.set([]);
+    this.filePreviewUrls.set([]);
+    this.base64Images.set([]);
   }
 
   async generate(): Promise<void> {
@@ -184,7 +213,7 @@ export class Home {
 
     const currentPrompt = this.prompt().trim();
 
-    this.aiService.generateContent(this.prompt(), this.base64Image()!)
+    this.aiService.generateContent(this.prompt(), this.base64Images())
       .then(async res => {
         // Stop message cycling
         this.loadingMessagesService.stopCycling();

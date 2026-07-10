@@ -16,12 +16,12 @@ export class AiService {
   error = signal<string | null>(null);
   resultImageURL = signal<string | null>(null);
 
-  async generateContent(prompt: string, base64Img: string): Promise<string> {
+  async generateContent(prompt: string, base64Images: string[]): Promise<string> {
     this.error.set(null); // Clear previous errors
 
     try {
-      const generateImage = httpsCallable<{ prompt: string, base64Img: string }, ImageGenerationOutput>(this.functions, 'generateImageFlow');
-      const response = await generateImage({ prompt, base64Img });
+      const generateImage = httpsCallable<{ prompt: string, base64Images: string[] }, ImageGenerationOutput>(this.functions, 'generateImageFlow');
+      const response = await generateImage({ prompt, base64Images });
 
       const base64ImageResult = response.data.base64ImageResult;
 
