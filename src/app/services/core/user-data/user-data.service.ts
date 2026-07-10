@@ -104,7 +104,7 @@ export class UserDataService {
         return true;
       }
 
-      return guestGenerations < 2;
+      return guestGenerations < 5;
     }
 
     const userData = this.userData();
@@ -117,7 +117,7 @@ export class UserDataService {
 
     // This part handles authenticated users (both anonymous and signed-in)
     const today = new Date().toDateString();
-    const quota = user.isAnonymous ? 2 : 8;
+    const quota = user.isAnonymous ? 5 : 10;
 
     // If the last generation was not today, reset their count and allow generation.
     if (userData.lastGenerationDate !== today) {
