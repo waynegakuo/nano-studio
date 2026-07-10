@@ -25,7 +25,7 @@ Nano Studio aims to democratize high-quality product photography for Small and M
 ## How it works 🧠🖼️
 Nano Studio utilizes Google's "Nano Banana Pro" — the official Gemini 3 Pro's Image generation and editing model — to combine an uploaded product image with a detailed, text-based background prompt.
 
-- You upload a product snapshot 📷
+- You upload one or more product snapshots 📷
 - You describe the desired background or vibe using natural language 📝
 - The model composes a studio-grade image that blends your product with an authentic, evocative backdrop in seconds ⚡
 
@@ -44,9 +44,12 @@ The core value proposition is the ability to generate studio-quality images with
 
 ## Features ✨
 - **AI-Powered Image Generation**: Utilizes Google's Gemini 3 Pro model to generate high-quality product images.
+- **Multi-Image Upload**: Upload multiple product images at once — each image is sent to the AI model for richer, more accurate results.
 - **Prompt-Based Editing**: Users can describe the desired background and style using natural language.
+- **Quick Prompts**: Choose from preset styles (Studio, Soft, Noir, Vibrant) to instantly populate the prompt field.
 - **Authentication**: Secure user authentication with Google, powered by Firebase Authentication.
 - **Prompt History**: Saves and displays a history of user prompts, stored in Firestore.
+- **Generation Quota**: Daily generation limits per user type (guests: 5, signed-in: 10) to manage API usage.
 - **Responsive UI**: Built with Angular, ensuring a seamless experience across devices.
 
 ---
@@ -58,23 +61,29 @@ The application's core logic is split between the frontend (Angular) and the bac
 The backend uses Genkit to define an AI flow that generates images and exposes it as a callable Firebase Function.
 
 **Genkit Flow Definition:**
-The `_generateImageFlowLogic` defines the AI workflow. It takes a prompt and a base64-encoded image, uses the Gemini model to generate a new image, and returns the result.
+The `_generateImageFlowLogic` defines the AI workflow. It takes a prompt and an array of base64-encoded images, maps them into media parts, and passes all of them to the Gemini model alongside the text prompt.
 
 ```typescript
 // functions/src/index.ts
+const ImageGenerationInputSchema = z.object({
+  prompt: z.string().describe('The prompt for the image generation'),
+  base64Images: z.array(z.string()).min(1).describe('The base64 encoded image data for one or more images'),
+})
+
 export const _generateImageFlowLogic = ai.defineFlow(
   {
     name: 'generateImageFlow',
     inputSchema: ImageGenerationInputSchema,
     outputSchema: ImageGenerationOutputSchema,
   },
-  async({ prompt, base64Img }) => {
+  async({ prompt, base64Images }) => {
     const payloadText = SYSTEM_PROMPT(prompt);
 
     try {
-      // Generate image using the AI model
+      // Generate image using the AI model — include all uploaded images
+      const mediaParts = base64Images.map(img => ({ media: { url: `data:image/jpeg;base64,${img}` } }));
       const response = await ai.generate([
-        {media: { url: `data:image/jpeg;base64,${base64Img}`}},
+        ...mediaParts,
         {text: payloadText}
       ]);
 
@@ -122,10 +131,10 @@ import { httpsCallable } from '@angular/fire/functions';
 
 export class AiService {
   // ...
-  async generateContent(prompt: string, base64Img: string): Promise<string> {
+  async generateContent(prompt: string, base64Images: string[]): Promise<string> {
     try {
-      const generateImage = httpsCallable<{ prompt: string, base64Img: string }, ImageGenerationOutput>(this.functions, 'generateImageFlow');
-      const response = await generateImage({ prompt, base64Img });
+      const generateImage = httpsCallable<{ prompt: string, base64Images: string[] }, ImageGenerationOutput>(this.functions, 'generateImageFlow');
+      const response = await generateImage({ prompt, base64Images });
       const base64ImageResult = response.data.base64ImageResult;
       // ...
       return `data:image/png;base64,${base64ImageResult}`;
@@ -161,19 +170,35 @@ export class AuthService {
 ```
 
 **Home Component (`src/app/pages/home/home.ts`):**
-The `Home` component uses the `AiService` to trigger the image generation process.
+The `Home` component manages an array of uploaded files and passes all base64-encoded images to the `AiService`. Users can add or remove individual images before generating.
 
 ```typescript
 // src/app/pages/home/home.ts
 export class Home {
   aiService = inject(AiService);
-  // ...
+
+  readonly files = signal<File[]>([]);
+  readonly filePreviewUrls = signal<string[]>([]);
+  readonly base64Images = signal<string[]>([]);
+
+  readonly canGenerate = computed(() =>
+    this.base64Images().length > 0 &&
+    this.prompt().trim().length > 0 &&
+    !this.loading() &&
+    this.userDataService.canGenerateImage(this.authService.currentUser())
+  );
+
+  removeFile(index: number): void {
+    this.files.update(f => f.filter((_, i) => i !== index));
+    this.filePreviewUrls.update(u => u.filter((_, i) => i !== index));
+    this.base64Images.update(b => b.filter((_, i) => i !== index));
+  }
 
   async generate(): Promise<void> {
     if (!this.canGenerate()) return;
     this.loading.set(true);
 
-    this.aiService.generateContent(this.prompt(), this.base64Image()!)
+    this.aiService.generateContent(this.prompt(), this.base64Images())
       .then(async res => {
         this.resultUrl.set(res);
         // ...
@@ -476,22 +501,25 @@ This project is built with Angular. If you’re setting it up locally:
 ---
 
 ## Usage guide 👩🏽‍💻👨‍💻
-- Upload a clear JPG or PNG (well‑lit, uncluttered works best)
+- Upload one or more clear JPG or PNG images (well‑lit, uncluttered works best)
+- Remove any unwanted images using the ✕ button on each preview thumbnail
 - Try a quick prompt (Studio, Soft, Noir, Vibrant) or write your own, e.g.:
   - "Soft natural light, wooden tabletop, cozy morning scene"
   - "Vibrant kanga fabric backdrop, soft shadows, minimalist props"
-- Click Generate
+- Click **Generate image**
 - Download or share the result; refine the prompt and iterate
 
 Notes
-- Large images may take longer to process
-- Prompt history shows your last 20 prompts and and when they were generated
+- Large or multiple images may take longer to process
+- Guests can generate up to **5 images**; signed-in users get **10 per day**
+- Prompt history shows your last 20 prompts and when they were generated
 ---
 
 ## Notes on the model 🧩
 - "Nano Banana Pro" refers to Google's Gemini 3 Pro image generation and editing model.
 - It enables conversational edits like color changes, adding objects, or texture adjustments.
-- Ideal for single-image product scenarios where consistency and speed matter.
+- Supports multi-image input — all uploaded images are passed to the model simultaneously for richer context.
+- Ideal for product scenarios where consistency, speed, and visual accuracy matter.
 
 ---
 
@@ -514,7 +542,8 @@ Common Angular CLI scripts:
 ---
 
 ## Roadmap 🗺️ (ideas)
-- Preset prompt templates for common product categories
+- ~~Preset prompt templates for common product categories~~ ✅ Done
+- ~~Multi-image upload support~~ ✅ Done
 - Batch processing for product catalogs
 - Export presets for marketplaces (Shopify, Jumia, etc.)
 - Fine-grained controls for lighting and shadow realism
