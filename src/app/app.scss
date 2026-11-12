@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh;
+
+  @media (min-width: 64rem) and (min-height: 38rem) {
+    block-size: 100dvh;
+    overflow: clip;
+  }
+}
+
+router-outlet {
+  display: none;
+}

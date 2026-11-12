@@ -1,7 +1,7 @@
 /*
   Global Design System
   Centralize design tokens and reusable utilities here. Keep component styles local.
-  Fonts: DM Sans (UI), Ubuntu (brand title only). Loaded via index.html with display=swap.
+  Fonts: Plus Jakarta Sans (Display/Headings), DM Sans (UI), Ubuntu (brand title).
 */
 
 @use 'styles/tokens' as *;
@@ -15,15 +15,15 @@
 
 body.festive-theme {
   --color-primary: #{festive.$festive-color-primary};
+  --color-primary-vivid: #{festive.$festive-color-primary};
   --color-secondary: #{festive.$festive-color-secondary};
   --color-accent: #{festive.$festive-color-accent};
-  --color-body: #{festive.$festive-color-surface};
+  --color-body: #{festive.$festive-color-body};
   --color-surface: #{festive.$festive-color-surface};
-  --font-ui: #{festive.$festive-font-ui};
   --radius-lg: #{festive.$festive-radius-lg};
   --shadow-md: #{festive.$festive-shadow-md};
 
   /* Component-specific overrides */
-  --color-navbar-background: #{festive.$festive-color-surface};
-  --color-navbar-border: #{festive.$festive-color-accent};
+  --color-navbar-background: rgba(250, 248, 245, 0.86);
+  --color-navbar-border: rgba(185, 28, 28, 0.16);
 }

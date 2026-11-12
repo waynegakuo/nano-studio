@@ -9,13 +9,13 @@ import {
   signal,
   HostListener
 } from '@angular/core';
-import {CommonModule, isPlatformBrowser, NgOptimizedImage} from '@angular/common';
+import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import {AuthService} from '../../services/core/auth/auth.service';
 import {Subject, takeUntil} from 'rxjs';
 
 @Component({
   selector: 'app-user-auth',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [NgOptimizedImage],
   templateUrl: './user-auth.html',
   styleUrl: './user-auth.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

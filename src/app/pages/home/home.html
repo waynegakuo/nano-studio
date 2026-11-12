@@ -1,29 +1,59 @@
-<section class="container page">
-  <header class="page__header">
-    <img ngSrc="/assets/logos/nano-studio-logo.svg" width="270" height="50" alt="Nano Studio" priority />
-    <p class="text-md text-muted flex flex-row page__header__description">
-      Generate product visuals with
-      <span class="flex flex-row"><img ngSrc="/assets/logos/gemini-logo.svg" width="100" height="20" alt="Gemini" /> <b>Nano Banana Pro</b></span>
-    </p>
-    <p class="text-md text-muted page__header__description__sub">
-      Upload, describe the vibe, and go.
+<main class="container page">
+  <header class="hero">
+    <div class="engine-pill">
+      <span>Powered by</span>
+      <img ngSrc="/assets/logos/gemini-logo.svg" width="72" height="15" alt="Gemini" />
+      <span aria-hidden="true">·</span>
+      <b class="engine-pill__model">Nano Banana Pro</b>
+    </div>
+    <h1 class="hero__title">Studio-grade product visuals, in seconds.</h1>
+    <p class="hero__subtitle">
+      Upload your product photos, describe the vibe or choose a lighting preset, and render
+      campaign-ready scenes without a physical studio.
     </p>
   </header>
 
-  <div class="grid">
-    <div class="card">
-      <h2 class="text-xl fw-semibold">Your product</h2>
-      <div class="upload" role="group" aria-labelledby="upload-label" aria-describedby="upload-help">
-        <label id="upload-label" class="fw-semibold">Upload photos (JPG or PNG)</label>
-        <input
-          #fileInput
-          type="file"
-          class="input"
-          accept="image/png,image/jpeg"
-          multiple
-          (change)="onFileChange(fileInput.files)"
-        />
-        <p id="upload-help" class="text-sm text-muted">Upload one or more product images. Best results with clear, well-lit photos.</p>
+  <div class="studio-grid">
+    <!-- Left Column: Scene Composer -->
+    <section class="studio-card" aria-labelledby="composer-heading">
+      <div class="card-head">
+        <div>
+          <h2 id="composer-heading" class="card-head__title">Your product</h2>
+        </div>
+        @if (filePreviewUrls().length > 0) {
+          <span class="status-pill status-pill--live">
+            {{ filePreviewUrls().length }} {{ filePreviewUrls().length === 1 ? 'photo' : 'photos' }} ready
+          </span>
+        }
+      </div>
+
+      <div class="upload-group" role="group" aria-labelledby="upload-label" aria-describedby="upload-help">
+        <div class="upload-dropzone">
+          <input
+            #fileInput
+            id="product-upload"
+            type="file"
+            class="upload-dropzone__input"
+            accept="image/png,image/jpeg"
+            multiple
+            (change)="onFileChange(fileInput.files)"
+          />
+          <span class="upload-dropzone__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </span>
+          <div class="upload-dropzone__copy">
+            <label id="upload-label" for="product-upload" class="upload-dropzone__title">
+              Drop product photos here, or <span class="upload-dropzone__browse">browse files</span>
+            </label>
+            <p id="upload-help" class="upload-dropzone__hint">
+              JPG or PNG · Best results with clear, well-lit product angles
+            </p>
+          </div>
+        </div>
 
         @if (filePreviewUrls().length > 0) {
           <div class="preview-list">
@@ -35,129 +65,247 @@
                   class="preview-list__remove"
                   [attr.aria-label]="'Remove image ' + (i + 1)"
                   (click)="removeFile(i)"
-                >&#x2715;</button>
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                </button>
               </div>
             }
           </div>
         }
       </div>
 
-      <div class="section">
-        <label for="prompt" class="fw-semibold">Describe the vibe</label>
+      <div class="field-block field-block--grow">
+        <div class="field-block__header">
+          <label for="prompt" class="field-label">Describe the vibe</label>
+          <span class="field-hint">Lighting, surface &amp; mood</span>
+        </div>
         <textarea
           #promptArea
           id="prompt"
           class="input textarea"
           [value]="prompt()"
           (input)="onPromptInput(promptArea.value)"
-          placeholder="e.g. Soft natural light, wooden tabletop, cozy morning scene"
+          placeholder="e.g. Soft natural morning light, warm travertine tabletop, subtle botanical shadows..."
           rows="4"
         ></textarea>
       </div>
 
-      <div class="section">
-        <div class="fw-semibold">Quick prompts</div>
-        <div class="chips">
-          @for (preset of presets(); track preset) {
+      <div class="field-block">
+        <div class="field-label">Quick prompts</div>
+        <div class="chips" role="group" aria-label="Lighting presets">
+          @for (preset of presets(); track preset.id) {
             <button
               type="button"
               class="chip"
               [class.chip--active]="selectedPreset() === preset.title"
+              [attr.aria-pressed]="selectedPreset() === preset.title"
+              [title]="preset.description"
               (click)="onSelectPreset(preset)"
-            >{{ preset.title }}</button>
+            >
+              @if (selectedPreset() === preset.title) {
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              } @else {
+                <span class="chip__dot" aria-hidden="true"></span>
+              }
+              <span>{{ preset.title }}</span>
+            </button>
           }
         </div>
       </div>
 
-      <div class="actions flex items-center gap-3">
-        <div class="flex flex-col">
-            <button
-              type="button"
-              class="btn btn-primary"
-              [disabled]="!canGenerate()"
-              [attr.aria-busy]="loading()"
-              (click)="generate()"
-              [title]="!canGenerate() && remainingGenerations() <= 0 ? 'You have reached your daily generation limit.' : ''"
-            >
-              @if (loading()) { Visualizing... } @else { Generate image }
-            </button>
-            <p class="text-sm text-muted text-center mt-1">
-              @if (remainingGenerations() <= 0) {
-                You have reached your daily generation limit.
-              } @else {
-                {{ remainingGenerations() }} generations left today
-              }
-            </p>
-        </div>
+      <div class="composer-footer">
+        <button
+          type="button"
+          class="btn btn-primary btn-generate"
+          [disabled]="!canGenerate()"
+          [attr.aria-busy]="loading()"
+          (click)="generate()"
+          [title]="!canGenerate() && remainingGenerations() <= 0 ? 'You have reached your daily generation limit.' : ''"
+        >
+          @if (loading()) {
+            <span>Visualizing...</span>
+          } @else {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+            </svg>
+            <span>Generate image</span>
+          }
+        </button>
+
+        <p class="quota-note" [class.quota-note--empty]="remainingGenerations() <= 0">
+          @if (remainingGenerations() <= 0) {
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span>You have reached your daily generation limit.</span>
+          } @else {
+            <span class="quota-note__dot" aria-hidden="true"></span>
+            <span>{{ remainingGenerations() }} {{ remainingGenerations() === 1 ? 'generation' : 'generations' }} left today</span>
+          }
+        </p>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
-      <h2 class="text-xl fw-semibold">Result</h2>
-
-      @if (viewingHistory()) {
-        <div class="history-banner" role="status" aria-live="polite">
-          <span class="history-banner__icon" aria-hidden="true">🕓</span>
-          <span class="history-banner__text">Viewing history — <b>{{ (activeHistoryItem()?.prompt ?? '') | truncateText: 40 }}</b></span>
-          <button type="button" class="btn btn-outline history-banner__dismiss" (click)="onDismissHistoryView()">Dismiss</button>
+    <!-- Right Column: Studio Loupe & History -->
+    <section class="studio-card" aria-labelledby="result-heading">
+      <div class="card-head">
+        <div>
+          <h2 id="result-heading" class="card-head__title">Result</h2>
         </div>
 
-        @if (historyImageBase64()) {
-          <div class="result result--history">
-            <img [src]="historyImageBase64()!" alt="Stored result for historical prompt" />
-          </div>
-          <div class="section">
+        <div class="card-head__actions">
+          @if (viewingHistory() && historyImageBase64()) {
             <a
-              class="btn btn-secondary"
+              class="btn btn-secondary btn-compact"
               [href]="historyImageBase64()!"
               download="nano-history.png"
               (click)="downloadHistoryImage($event)"
               rel="noopener"
-            >Download image</a>
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Download</span>
+            </a>
+          } @else if (!viewingHistory() && !loading() && hasResult()) {
+            <a
+              class="btn btn-secondary btn-compact"
+              [href]="resultUrl()!"
+              download="nano-generated.png"
+              (click)="downloadResult($event)"
+              rel="noopener"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Download PNG</span>
+            </a>
+          }
+
+          @if (viewingHistory()) {
+            <span class="status-pill status-pill--live">Archive View</span>
+          } @else if (loading()) {
+            <span class="status-pill status-pill--live">Rendering…</span>
+          } @else if (hasResult()) {
+            <span class="status-pill status-pill--ready">Ready</span>
+          } @else {
+            <span class="status-pill">Standby</span>
+          }
+        </div>
+      </div>
+
+      @if (viewingHistory()) {
+        <div class="history-banner" role="status" aria-live="polite">
+          <svg class="history-banner__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span class="history-banner__text">
+            Viewing history — <b>{{ (activeHistoryItem()?.prompt ?? '') | truncateText: 40 }}</b>
+          </span>
+          <button type="button" class="btn btn-outline history-banner__dismiss" (click)="onDismissHistoryView()">
+            Dismiss
+          </button>
+        </div>
+
+        @if (historyImageBase64()) {
+          <div class="viewfinder viewfinder--filled">
+            <img [src]="historyImageBase64()!" alt="Stored result for historical prompt" />
           </div>
         } @else {
-          <p class="text-sm text-muted">No image was stored for this prompt.</p>
+          <div class="viewfinder viewfinder--empty">
+            <p class="text-xs text-muted">No image was stored for this prompt.</p>
+          </div>
         }
       } @else if (loading()) {
-        <div class="loading-section">
-          <div class="loading-spinner" aria-hidden="true"></div>
-          <p class="loading-message text-md">{{ loadingMessagesService.currentMessage() }}</p>
+        <div class="viewfinder viewfinder--loading" role="status" aria-live="polite">
+          <progress aria-label="Generating product visual" class="loading-spinner"></progress>
+          <p class="loading-message">{{ loadingMessagesService.currentMessage() }}</p>
+          <span class="loading-subtext">Composing studio lighting &amp; scene reflections…</span>
         </div>
       } @else if (hasResult()) {
-        <div class="result">
+        <div class="viewfinder viewfinder--filled">
           <img [src]="resultUrl()!" alt="Generated image result" />
         </div>
-        <div class="section">
-          <a
-            class="btn btn-secondary"
-            [href]="resultUrl()!"
-            download="nano-generated.png"
-            (click)="downloadResult($event)"
-            rel="noopener"
-          >Download</a>
-        </div>
       } @else {
-        <p class="text-sm text-muted">Your generated image will appear here.</p>
+        <div class="viewfinder viewfinder--empty">
+          <div class="viewfinder__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>
+            </svg>
+          </div>
+          <p class="viewfinder__empty-title">Your generated image will appear here</p>
+          <p class="viewfinder__empty-sub">
+            Upload a product photo and describe your scene to render a studio shot.
+          </p>
+        </div>
       }
 
-      <div class="section">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-lg fw-semibold">Prompt history</h3>
+      <div class="history-panel">
+        <div class="history-panel__header">
+          <h3 class="history-panel__title">Prompt history</h3>
           @if (history().length > 0) {
-            <button type="button" class="btn btn-link text-sm" (click)="onClearHistory()">Clear all</button>
+            <button type="button" class="btn btn-link text-xs" (click)="onClearHistory()">Clear all</button>
           }
         </div>
 
         @if (userPromptService.loading()) {
-          <p class="text-sm text-muted">Loading history...</p>
+          <div class="callout history-panel__state">
+            <span>Loading history...</span>
+          </div>
         } @else if (userPromptService.error()) {
-          <p class="text-sm text-danger">Unable to load your history right now.</p>
+          <div class="callout callout--danger history-panel__state">
+            <span class="callout__badge" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="m15 9-6 6M9 9l6 6"/>
+              </svg>
+            </span>
+            <div class="callout__copy">
+              <strong class="callout__title">History unavailable</strong>
+              <span>Unable to load your history right now.</span>
+            </div>
+          </div>
         } @else if (!isAuthed()) {
-          <p class="text-sm text-muted">As a guest, you have a maximum of <b>2 image generations</b> to test out Nano Studio. Sign in to save your prompt history and unlock more.</p>
-        } @else if (isAuthed() && history().length === 0) {
-          <p class="text-sm text-muted">No history yet. Generate an image to see it here. You have a maximum of 8 image generations today. Use it wisely and enjoy😁</p>
-        }
-         @else {
+          <div class="callout history-panel__state">
+            <span class="callout__badge" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <div class="callout__copy">
+              <strong class="callout__title">Save your studio archive</strong>
+              <span>
+                As a guest, you have free test generations to try Nano Studio. <b>Sign in</b> to save your prompt history and unlock a higher daily allowance.
+              </span>
+            </div>
+          </div>
+        } @else if (history().length === 0) {
+          <div class="callout history-panel__state">
+            <span class="callout__badge" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </span>
+            <div class="callout__copy">
+              <strong class="callout__title">No saved prompts yet</strong>
+              <span>Generate your first product scene and it will be saved here automatically.</span>
+            </div>
+          </div>
+        } @else {
           <ol class="history">
             @for (item of history(); track item.timestamp) {
               <li
@@ -170,25 +318,36 @@
                 (keydown.enter)="onSelectHistoryItem(item)"
                 (keydown.space)="onSelectHistoryItem(item)"
               >
-                <div class="history__text">{{ item.prompt | truncateText: 50 }}</div>
-                <div class="history__meta">{{ item.timestamp | date: 'short' }}</div>
+                @if (item.imageBase64) {
+                  <img class="history__thumb" [src]="item.imageBase64" alt="" loading="lazy" />
+                } @else {
+                  <span class="history__thumb history__thumb--placeholder" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <rect x="3" y="3" width="18" height="18" rx="3"/>
+                      <circle cx="9" cy="9" r="1.5"/>
+                      <path d="m21 15-4-4L6 21"/>
+                    </svg>
+                  </span>
+                }
+                <div class="history__body">
+                  <div class="history__text">{{ item.prompt | truncateText: 52 }}</div>
+                  <div class="history__meta">{{ item.timestamp | date: 'short' }}</div>
+                </div>
+                <svg class="history__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
               </li>
             }
           </ol>
         }
       </div>
-    </div>
+    </section>
   </div>
 
-  <div class="footer text-muted">
+  <footer class="footer">
     @if (themeService.festiveTheme()) {
-      <div class="festive-message">
-        🎄 Merry Christmas and a Happy New Year! 🥳
-      </div>
+      <span class="festive-message">🎄 Season's Greetings &amp; Happy New Year from Nano Studio! ✨</span>
     }
-    <div class="footer__content">
-      Made with ❤️ by <a href="https://github.com/waynegakuo" target="_blank" rel="noopener">Wayne Gakuo</a>
-    </div>
-  </div>
-
-</section>
+    <span>Made with ❤️ by <a href="https://github.com/waynegakuo" target="_blank" rel="noopener">Wayne Gakuo</a></span>
+  </footer>
+</main>

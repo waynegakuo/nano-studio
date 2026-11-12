@@ -2,29 +2,40 @@
 @use 'tokens' as *;
 
 :root {
+  color-scheme: light;
+
+  /* Progressive enhancement token for oklab gradient interpolation */
+  --in-oklab: #{""};
+
   /* Colors */
   --color-primary: #{$color-primary};
+  --color-primary-vivid: #{$color-primary-vivid};
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
   --color-success: #{$color-success};
   --color-warning: #{$color-warning};
   --color-danger: #{$color-danger};
   --color-info: #{$color-info};
+  --color-body: #{$color-body};
+  --color-card: #{$color-card};
   --color-surface: #{$color-surface};
   --color-elevated: #{$color-elevated};
   --color-muted: #{$color-muted};
   --color-border: #{$color-border};
-  --color-body: #{$color-body};
+  --color-border-strong: #{$color-border-strong};
   --color-white: #{$color-white};
   --color-black: #{$color-black};
   --color-gradient-text: #{$color-gradient};
+  --color-cta-gradient: #{$color-cta-gradient};
 
-  /* Typography */
-  --font-ui: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial,
-    'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
-  --font-brand: 'Ubuntu', 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial,
+  /* Typography — pure rem/em scale to honor OS/browser text-scale preferences */
+  --font-ui: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans', sans-serif;
-  --text-base: 16px;
+  --font-display: 'Plus Jakarta Sans', 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-brand: 'Ubuntu', 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
+
+  --text-base: 1rem;
+  --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-md: 1rem;
   --text-lg: 1.125rem;
@@ -32,13 +43,15 @@
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
   --text-4xl: 2.25rem;
+
   --fw-light: 300;
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;
   --leading-tight: 1.2;
-  --leading-normal: 1.5;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
 
   /* Spacing */
   --space-0: #{$space-0};
@@ -70,6 +83,20 @@
   --container-xl: #{$container-xl};
 
   /* Component-specific */
-  --color-navbar-background: var(--color-white);
-  --color-navbar-border: #e5e7eb;
+  --color-navbar-background: rgba(255, 255, 255, 0.82);
+  --color-navbar-border: rgba(15, 23, 42, 0.08);
+}
+
+@supports (background: linear-gradient(in oklab, white, black)) {
+  :root {
+    --in-oklab: in oklab;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --color-border: CanvasText;
+    --color-border-strong: CanvasText;
+    --color-navbar-border: CanvasText;
+  }
 }

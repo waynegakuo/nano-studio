@@ -1,15 +1,11 @@
-// Festive theme variables (Christmas and New Year)
+// Festive theme variables (Dec 1 – Jan 5 seasonal accents; preserves clean readable UI font)
+$festive-color-primary: #b91c1c;   // Deep Crimson
+$festive-color-secondary: #15803d; // Pine Green
+$festive-color-accent: #d97706;    // Warm Gold
+$festive-color-body: #faf8f5;      // Warm Ivory Canvas
+$festive-color-surface: #f3efe9;   // Soft Parchment
 
-// Christmas and New Year color palette
-$festive-color-primary: #d92525; // Red
-$festive-color-secondary: #006400; // Dark Green
-$festive-color-accent: #ffd700; // Gold
-$festive-color-body: #ffffff; // White
-$festive-color-surface: #f0f8ff; // Alice Blue
-
-// Font styles
-$festive-font-ui: 'Mountains of Christmas', cursive;
-
-// Other styles
-$festive-radius-lg: 12px;
-$festive-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+$festive-radius-lg: 1rem;
+$festive-shadow-md:
+  0 4px 16px -4px rgba(185, 28, 28, 0.1),
+  0 2px 6px rgba(15, 23, 42, 0.05);
