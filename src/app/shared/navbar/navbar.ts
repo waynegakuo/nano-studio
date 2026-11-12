@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, signal } from '@angular/core';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage } from '@angular/common';
 import { UserAuth } from '../user-auth/user-auth';
 import { ThemeService } from '../../services/theme/theme.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, NgOptimizedImage, UserAuth],
+  imports: [NgOptimizedImage, UserAuth],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

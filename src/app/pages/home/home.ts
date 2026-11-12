@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, inject, PLATFORM_ID, signal} from '@angular/core';
-import {CommonModule, isPlatformBrowser, NgOptimizedImage} from '@angular/common';
+import { CommonModule, isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import {PromptHistoryItem} from '../../models/prompt.model';
 import {AiService} from '../../services/core/ai/ai.service';
 import {LoadingMessagesService} from '../../services/loading-messages/loading-messages.service';
