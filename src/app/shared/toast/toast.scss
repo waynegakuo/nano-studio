@@ -1,11 +1,12 @@
-.toast-container {
+:host {
   position: fixed;
   inset-inline: 0;
-  bottom: 1rem;
+  inset-block-end: 1.25rem;
   display: grid;
   place-items: center;
   pointer-events: none;
   z-index: 1000;
+  padding-inline: 1rem;
 }
 
 .toasts {
@@ -14,51 +15,100 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: .5rem;
-  width: min(92vw, 480px);
+  gap: 0.625rem;
+  inline-size: min(100%, 30rem);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .toast {
   pointer-events: auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-  padding: .75rem 1rem;
-  border-radius: .5rem;
-  box-shadow: 0 6px 24px rgba(0,0,0,.12);
-  border: 1px solid transparent;
-  background: #fff;
-  color: #111;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-black);
+  font-size: var(--text-sm);
+  animation: toast-in 180ms cubic-bezier(0.2, 0, 0, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.toast__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-block-start: 0.1rem;
 }
 
 .toast--info {
-  border-color: #0ea5e9;
-  background: #f0f9ff;
-  color: #075985;
+  border-color: color-mix(in oklab, var(--color-info), white 55%);
+  background: color-mix(in oklab, var(--color-info), white 93%);
+  color: #0c4a6e;
+
+  .toast__icon {
+    color: var(--color-info);
+  }
 }
 
 .toast--warning {
-  border-color: #f59e0b;
-  background: #fffbeb;
-  color: #92400e;
+  border-color: color-mix(in oklab, var(--color-warning), white 55%);
+  background: color-mix(in oklab, var(--color-warning), white 93%);
+  color: #78350f;
+
+  .toast__icon {
+    color: var(--color-warning);
+  }
 }
 
 .toast--error {
-  border-color: #ef4444;
-  background: #fef2f2;
+  border-color: color-mix(in oklab, var(--color-danger), white 55%);
+  background: color-mix(in oklab, var(--color-danger), white 94%);
   color: #7f1d1d;
+
+  .toast__icon {
+    color: var(--color-danger);
+  }
 }
 
 .toast__text {
   flex: 1 1 auto;
+  min-inline-size: 0;
+  line-height: 1.45;
+  font-weight: var(--fw-medium);
 }
 
 .toast__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: 1.625rem;
+  block-size: 1.625rem;
+  border-radius: var(--radius-sm);
   border: none;
   background: transparent;
-  color: inherit;
-  font-size: 1.25rem;
-  line-height: 1;
+  color: currentColor;
+  opacity: 0.7;
   cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    opacity: 1;
+    background: color-mix(in oklab, currentColor, transparent 88%);
+  }
 }

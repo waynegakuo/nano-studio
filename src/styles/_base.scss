@@ -1,26 +1,97 @@
-/* 3) Base and resets */
-* { box-sizing: border-box; }
-html { font-size: 100%; }
+/* 3) Base and targeted element resets (avoids global * reset) */
+html,
+body,
+div,
+header,
+nav,
+main,
+section,
+article,
+aside,
+footer,
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+li,
+figure,
+form,
+label,
+button,
+input,
+textarea,
+select,
+a,
+img,
+svg,
+progress {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
-  font-family: var(--font-ui), sans-serif;
+  min-block-size: 100dvh;
+  font-family: var(--font-ui);
   font-weight: var(--fw-regular);
   font-size: var(--text-md);
   line-height: var(--leading-normal);
   color: var(--color-black);
   background-color: var(--color-body);
+  /* Subtle studio key-light aura + architectural dot matrix */
+  background-image:
+    radial-gradient(ellipse 75% 42% at 50% -6% var(--in-oklab), color-mix(in oklab, var(--color-primary-vivid), transparent 90%), transparent 70%),
+    radial-gradient(circle, color-mix(in oklab, var(--color-primary), transparent 91%) 1px, transparent 1px);
+  background-size: 100% 100%, 1.5rem 1.5rem;
+  background-attachment: fixed, scroll;
+  text-align: start;
+  overflow-wrap: break-word;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease, font-weight 0.3s ease, font-size 0.3s ease, line-height 0.3s ease;
 }
 
-img, svg, video, canvas { display: block; max-width: 100%; }
-button, input, textarea, select { font: inherit; color: inherit; }
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.022em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+  margin-block: 0;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-inline-size: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
 
 :focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--color-info), white 20%);
+  outline: 2px solid var(--color-primary-vivid);
   outline-offset: 2px;
 }
 
@@ -31,8 +102,29 @@ button, input, textarea, select { font: inherit; color: inherit; }
   line-height: var(--leading-tight);
 }
 
-.container { width: 100%; margin-inline: auto; padding-inline: var(--space-4); }
-@media (min-width: 40rem) { .container { max-width: var(--container-sm); } }
-@media (min-width: 48rem) { .container { max-width: var(--container-md); } }
-@media (min-width: 64rem) { .container { max-width: var(--container-lg); } }
-@media (min-width: 80rem) { .container { max-width: var(--container-xl); } }
+.container {
+  inline-size: 100%;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+@media (min-width: 40rem) {
+  .container {
+    max-inline-size: var(--container-sm);
+    padding-inline: var(--space-6);
+  }
+}
+@media (min-width: 48rem) {
+  .container {
+    max-inline-size: var(--container-md);
+  }
+}
+@media (min-width: 68rem) {
+  .container {
+    max-inline-size: var(--container-lg);
+  }
+}
+@media (min-width: 80rem) {
+  .container {
+    max-inline-size: var(--container-xl);
+  }
+}

@@ -1,26 +1,132 @@
+@use 'sass:string';
+
+/* Registered custom properties for semantic <progress> ring trail */
+@property --arc-start {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --arc-end {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --progress-dash-animation {
+  syntax: '*';
+  inherits: false;
+  initial-value: #{string.unquote(', progress-dash 2.6s ease-in-out infinite')};
+}
+
+@keyframes progress-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@keyframes progress-dash {
+  from {
+    --arc-start: 0deg;
+    --arc-end: 24deg;
+  }
+  50% {
+    --arc-start: 100deg;
+    --arc-end: 330deg;
+  }
+  to {
+    --arc-start: 360deg;
+    --arc-end: 384deg;
+  }
+}
+
+/* Native indeterminate <progress> styled as a studio aperture spinner */
+progress.loading-spinner:indeterminate {
+  --_from: calc(90deg + var(--arc-start, 0deg));
+  --_to: calc(90deg + var(--arc-end, 145deg));
+  --size: 2.75rem;
+  --thickness: 3.5px;
+  --spinner-color: var(--color-primary-vivid);
+  --track-color: color-mix(in oklab, var(--color-primary-vivid), transparent 84%);
+  --spinner-duration: 1.25s;
+  --_used-spinner-duration: var(--spinner-duration);
+
+  display: block;
+  position: relative;
+  inline-size: var(--size);
+  block-size: var(--size);
+  border-radius: 50%;
+  appearance: none;
+  border: 0;
+  background: conic-gradient(
+      from var(--_from),
+      var(--spinner-color) calc(var(--_to) - var(--_from)),
+      transparent 0
+    )
+    var(--track-color);
+  animation: progress-spin var(--_used-spinner-duration) linear infinite
+    var(--progress-dash-animation, );
+
+  @supports (background-clip: border-area) {
+    background-clip: border-area;
+    border: var(--thickness) solid transparent;
+    background-origin: border-box;
+  }
+
+  @supports not (background-clip: border-area) {
+    --clip-boundary: calc(100% - var(--thickness));
+    -webkit-mask-image: radial-gradient(
+      farthest-side,
+      transparent var(--clip-boundary),
+      black var(--clip-boundary)
+    );
+    mask-image: radial-gradient(
+      farthest-side,
+      transparent var(--clip-boundary),
+      black var(--clip-boundary)
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    --_used-spinner-duration: 6s;
+  }
+}
+
+progress.loading-spinner:indeterminate::-webkit-progress-bar,
+progress.loading-spinner:indeterminate::-webkit-progress-value {
+  display: none;
+  background: none;
+}
+
+progress.loading-spinner:indeterminate::-moz-progress-bar {
+  display: none;
+  background: none;
+}
+
 @keyframes fall {
   0% {
-    transform: translateY(-100vh) translateX(-5vw);
+    transform: translateY(-100dvh) translateX(-4dvw);
   }
   100% {
-    transform: translateY(100vh) translateX(5vw);
+    transform: translateY(100dvh) translateX(4dvw);
   }
 }
 
 .snow {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   pointer-events: none;
   z-index: 9999;
+
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
 }
 
 .snowflake {
   position: absolute;
-  top: -20px;
-  color: var(--color-accent, #ffd700);
+  inset-block-start: -1.25rem;
+  color: var(--color-accent, #d97706);
   font-size: 1rem;
   animation: fall linear infinite;
 }
